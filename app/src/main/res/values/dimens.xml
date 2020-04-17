@@ -1,0 +1,8 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+
+
+    <!-- Where to shift the map center when user taps on marker -->
+    <dimen name="map_dx">0dp</dimen>
+    <dimen name="map_dy">-150dp</dimen>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0574f0</color>
+    <color name="colorPrimaryDark">#0049C7</color>
+    <color name="colorAccent">#1CA3FF</color>
+
+    <color name="corTextoSearchView">#615E5E</color>
+
+    <color name="btnLogin">#039DDA</color>
+    <color name="btnCadastro">#039DDA</color>
+
+    <!--Cores Floating Menu-->
+
+    <color name="corFtSubMenuMapa">#1C68FF</color>
+    <color name="corFtSubMenuEventos">#1C68FF</color>
+    <color name="corFtSubMenuPressed">#2196F3</color>
+    <color name="corFtSubMenuRipple">#2196F3</color>
+
+</resources>

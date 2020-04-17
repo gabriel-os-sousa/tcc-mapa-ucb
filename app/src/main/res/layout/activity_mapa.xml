@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.MapaActivity">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <include layout="@layout/toolbar" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <include layout="@layout/content_mapa" />
+
+    <include layout="@layout/content_floating_menu"/>
+    <!--<com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fab_menu_principal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="10dp"
+        fab:menu_icon="@drawable/ic_menu_branco"
+        fab:menu_colorNormal="@color/colorAccent"
+        fab:menu_colorPressed="@color/colorPrimary"
+        >
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/floating_menu_locais"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_pesquisar_branco"
+            fab:fab_colorNormal="@color/corFtSubMenuMapa"
+            fab:fab_colorPressed="@color/corFtSubMenuPressed"
+            fab:fab_label="Pesquisar Locais"
+            fab:fab_size="mini"
+            />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/floating_menu_eventos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_evento_branco"
+            fab:fab_colorNormal="@color/corFtSubMenuEventos"
+            fab:fab_colorPressed="@color/corFtSubMenuPressed"
+            fab:fab_label="Eventos"
+            fab:fab_size="mini"
+            />
+
+    </com.github.clans.fab.FloatingActionMenu>-->
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

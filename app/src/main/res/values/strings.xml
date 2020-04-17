@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Mapa Ucb</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="titulo_cadastro">Cadastrar uma conta</string>
+
+    <!-- Slides principal-->
+    <string name="titulo_slide_1">Titulo 1</string>
+    <string name="descricao_slide_1">Descricao 1</string>
+    <string name="titulo_slide_2">Titulo 2</string>
+    <string name="descricao_slide_2">Descricao 2</string>
+    <string name="titulo_slide_3">Titulo 3</string>
+    <string name="descricao_slide_3">Descricao 3</string>
+    <string name="titulo_slide_4">Titulo 4</string>
+    <string name="descricao_slide_4">Descricao 4</string>
+
+    <!-- Tela principal Home-->
+    <string name="titulo_principal">Principal</string>
+
+    <!--Tela login-->
+    <string name="titulo_login">Acessar minha conta</string>
+    <string name="btn_login">Login</string>
+    <string name="label_email_login">E-mail</string>
+    <string name="label_senha_login">Senha</string>
+
+    <!--Tela cadastro-->
+    <string name="btn_cadastrar">Cadastrar</string>
+    <string name="label_nome_cadastro">Nome</string>
+    <string name="label_sobrenome_cadastro">Sobrenome</string>
+    <string name="label_email_cadastro">Digite um E-mail válido</string>
+    <string name="label_senha_cadastro">Senha</string>
+    <string name="title_activity_principal">PrincipalActivity</string>
+
+    <string name="title_activity_mapa">MapaActivity</string>
+
+
+</resources>

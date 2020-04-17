@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "157393312409",
+    "firebase_url": "https://mapa-ucb.firebaseio.com",
+    "project_id": "mapa-ucb",
+    "storage_bucket": "mapa-ucb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:157393312409:android:afbcc27cfd8932f6c7b608",
+        "android_client_info": {
+          "package_name": "com.gabrieldev.mapaucb"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "157393312409-3poniiv7fhnaohf7buojolgb2hp6blhc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gabrieldev.mapaucb",
+            "certificate_hash": "7826b6f48c869fb46e216276a115e417b0a16114"
+          }
+        },
+        {
+          "client_id": "157393312409-ttuvnrtgihndrf67328o1b0tbcoampe2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOhMfDihmzOzcEMh-IiniQHvxcmMmDv_Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "157393312409-ttuvnrtgihndrf67328o1b0tbcoampe2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
