@@ -103,7 +103,7 @@ public class EventosActivity extends AppCompatActivity {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 String diaSelecionado = String.valueOf(date.getDay());
-                listaEventosDia.clear();//limpa a lista para não duplicar
+                listaEventosDia.clear();//limpa a lista para não duplicarrr
 
                 for (Evento evento : listaEventos){
                     if (Double.parseDouble(diaSelecionado) >= Double.parseDouble(evento.getDia_inicio())
