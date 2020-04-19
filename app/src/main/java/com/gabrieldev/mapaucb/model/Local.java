@@ -9,6 +9,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.List;
 
 public class Local implements Serializable {
@@ -19,6 +20,7 @@ public class Local implements Serializable {
     private double latitude;
     private double longitude;
     private int zIndex;
+    private Long dataCadastro;
     private List<Local> localVizinho;
 
     public Local() {
@@ -32,10 +34,12 @@ public class Local implements Serializable {
 
 
     public void salvar() {
+        this.dataCadastro = Calendar.getInstance().getTimeInMillis();
         DatabaseReference firebase = ConfiguracaoFirebase.getFirebaseDatabase().child("locais");
         //.child(this.id) //salva o id único codificado em Base64
         this.setId(firebase.push().getKey());
         firebase.child(this.id).setValue(this);
+
         Log.d("salvarL", ""+ this.id);
         Log.d("salvarL", ""+ this.nome);
         Log.d("salvarL", ""+ this.descricao);
@@ -43,6 +47,7 @@ public class Local implements Serializable {
         Log.d("salvarL", ""+ this.longitude);
         Log.d("salvarL", ""+ this.tipo);
         Log.d("salvarL", ""+ this.zIndex);
+        Log.d("salvarL", "Data"+ this.dataCadastro);
     }
 
     @Exclude
@@ -108,5 +113,23 @@ public class Local implements Serializable {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public Long getDataCadastro() {
+        return dataCadastro;
+    }
+
+    @Exclude
+    public Calendar getDataCadastroCalendar() {
+        if (this.dataCadastro == null) {
+            return null;
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(this.dataCadastro);
+        return c;
+    }
+
+    public void setDataCadastro(Long dataCadastro) {
+        this.dataCadastro = dataCadastro;
     }
 }

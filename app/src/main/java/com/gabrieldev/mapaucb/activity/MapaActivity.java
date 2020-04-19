@@ -569,6 +569,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 for (DataSnapshot dados: dataSnapshot.getChildren()){
                     Local local = dados.getValue(Local.class);
+                    Log.d("junior", "data: "+local.getDataCadastroCalendar());
                     listaLocais.add(local);
                 }
                 adicionarMarcadores();

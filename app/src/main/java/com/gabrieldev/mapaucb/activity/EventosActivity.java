@@ -87,6 +87,7 @@ public class EventosActivity extends AppCompatActivity {
             public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
                 calendarView.clearSelection();//Limpa a data selecionada, se tiver, quando mudar o mês
 
+
                 String mesSelecionado = String.format("%02d", (date.getMonth()+1)); //Preenche com 0 à frente se tiver um digito
                 mesAnoSelecionado = String.valueOf(mesSelecionado +""+ date.getYear());
 
@@ -103,7 +104,7 @@ public class EventosActivity extends AppCompatActivity {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 String diaSelecionado = String.valueOf(date.getDay());
-                listaEventosDia.clear();//limpa a lista para não duplicar
+                listaEventosDia.clear();//limpa a lista para não duplicarrr
 
                 for (Evento evento : listaEventos){
                     if (Double.parseDouble(diaSelecionado) >= Double.parseDouble(evento.getDia_inicio())
