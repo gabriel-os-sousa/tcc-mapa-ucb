@@ -92,7 +92,7 @@ public class EventosActivity extends AppCompatActivity {
 
                 eventosRef.removeEventListener(valueEventListenerEventos);
                 recuperarEventos();
-                Log.d("forEventos", "Mes: "+(date.getMonth()+1));
+                Log.d("forEventos", "Mes: "+(date.getMonth()+1) +" Ano: "+ date.getYear());
                 Log.d("forEventos", "Mes Ano Selecionado: "+ mesAnoSelecionado);
 
             }
