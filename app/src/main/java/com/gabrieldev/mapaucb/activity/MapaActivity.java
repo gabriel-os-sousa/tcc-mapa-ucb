@@ -65,7 +65,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     /*Para carregar a lista de locais*/
     private List<Local> listaLocais = new ArrayList<>();
 
-    /*Para carregar a lista de eventos. 14:11*/
+    /*Para carregar a lista de eventos*/
     private List<Evento> listaEventos = new ArrayList<>();
 
     /*Firebase*/
