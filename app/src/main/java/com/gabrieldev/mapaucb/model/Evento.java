@@ -1,18 +1,35 @@
 package com.gabrieldev.mapaucb.model;
 
 public class Evento {
-    private String nome;
+    private Long data_fim;
+    private Long data_inicio;
     private String descricao;
-    private String dia_inicio;
-    private String dia_fim;
-    private String tipo;
     private String local;
+    private String nome;
+    private String tipo;
+
 
     public Evento() {
     }
 
     public void salvar () {
 
+    }
+
+    public Long getData_fim() {
+        return data_fim;
+    }
+
+    public void setData_fim(Long data_fim) {
+        this.data_fim = data_fim;
+    }
+
+    public Long getData_inicio() {
+        return data_inicio;
+    }
+
+    public void setData_inicio(Long data_inicio) {
+        this.data_inicio = data_inicio;
     }
 
     public String getNome() {
@@ -29,22 +46,6 @@ public class Evento {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
-    }
-
-    public String getDia_inicio() {
-        return dia_inicio;
-    }
-
-    public void setDia_inicio(String dia_inicio) {
-        this.dia_inicio = dia_inicio;
-    }
-
-    public String getDia_fim() {
-        return dia_fim;
-    }
-
-    public void setDia_fim(String dia_fim) {
-        this.dia_fim = dia_fim;
     }
 
     public String getTipo() {

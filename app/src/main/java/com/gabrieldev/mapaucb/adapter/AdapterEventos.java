@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gabrieldev.mapaucb.R;
 import com.gabrieldev.mapaucb.model.Evento;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHolder>{
@@ -34,11 +35,25 @@ public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHo
 
         holder.nome.setText(evento.getNome());
         holder.local.setText(evento.getLocal());
-        if (evento.getDia_inicio().equals(evento.getDia_fim())) { //se o evento for de apenas um dia, muda o texto
-            holder.diaInicio.setText(evento.getDia_inicio());
+
+        Calendar cInicial = Calendar.getInstance();
+        cInicial.setTimeInMillis(evento.getData_inicio());
+        Calendar cFinal = Calendar.getInstance();
+        cFinal.setTimeInMillis(evento.getData_fim());
+
+        //MONTH = 0 pra janeiro / DAY_OF_MONTH = 1 para o primeiro dia do mês
+        //Adiciona um mês aos calêndários pois os meses começam no 0
+        cInicial.add(Calendar.MONTH,1);
+        cFinal.add(Calendar.MONTH,1);
+
+        if((cInicial.get(Calendar.MONTH) == cFinal.get(Calendar.MONTH)) && (cInicial.get(Calendar.DAY_OF_MONTH) == cFinal.get(Calendar.DAY_OF_MONTH))) {
+            String data = cInicial.get(Calendar.DAY_OF_MONTH )+"/"+cInicial.get(Calendar.MONTH);
+            holder.data.setText(data);
         } else {
-            holder.diaInicio.setText(evento.getDia_inicio() +" a "+ evento.getDia_fim());
+            String data = cInicial.get(Calendar.DAY_OF_MONTH)+"/"+cInicial.get(Calendar.MONTH)+" a "+cFinal.get(Calendar.DAY_OF_MONTH)+"/"+cFinal.get(Calendar.MONTH);
+            holder.data.setText(data);
         }
+
     }
 
     @Override
@@ -48,13 +63,13 @@ public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHo
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView nome, local, diaInicio;
+        TextView nome, local, data;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             nome = itemView.findViewById(R.id.textEventoNome);
             local = itemView.findViewById(R.id.textEventoLocal);
-            diaInicio = itemView.findViewById(R.id.textEventoDiaInicio);
+            data = itemView.findViewById(R.id.textEventoData);
         }
     }
 }
