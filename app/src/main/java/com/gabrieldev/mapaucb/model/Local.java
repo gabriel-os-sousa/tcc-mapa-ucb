@@ -21,6 +21,7 @@ public class Local implements Serializable {
     private double longitude;
     private int zIndex;
     private Long dataCadastro;
+    private Integer andar;
     private List<Local> localVizinho;
 
     public Local() {
@@ -31,7 +32,6 @@ public class Local implements Serializable {
     public String toString() {
         return " Nome: "+this.getNome()+" - Desc: "+this.getDescricao();
     }
-
 
     public void salvar() {
         this.dataCadastro = Calendar.getInstance().getTimeInMillis();
@@ -113,6 +113,14 @@ public class Local implements Serializable {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public Integer getAndar() {
+        return andar;
+    }
+
+    public void setAndar(Integer andar) {
+        this.andar = andar;
     }
 
     public Long getDataCadastro() {

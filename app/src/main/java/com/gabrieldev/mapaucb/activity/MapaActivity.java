@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -46,12 +47,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +77,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ValueEventListener valueEventListenerLocais;
     private DatabaseReference eventosRef;
     private ValueEventListener valueEventListenerEventos;
+    private StorageReference imgRef = ConfiguracaoFirebase.getFirebaseStorage();
 
     /*Verificar usuário*/
     private FirebaseAuth autenticacao;
@@ -88,6 +93,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FloatingActionButton fabLocais;
     private FloatingActionButton fabEventos;
     private FloatingActionMenu fabMenu;
+    private FloatingActionButton fabLocalizacao;
 
     /*Ui Setting do Mapa*/
     private UiSettings uiSettings;
@@ -123,6 +129,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         fabEventos = findViewById(R.id.floating_menu_eventos);
         fabMapa = findViewById(R.id.floating_menu_mapa);
         fabMenu = findViewById(R.id.fab_menu_principal);
+        fabLocalizacao = findViewById(R.id.fab_localizacao);
+
 
         //Inicializar mapa - Obtem o SupportMapFragment e notifica quando o mapa está pronto para uso
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -130,12 +138,12 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Menu flutuante
         configuraMenuFlutuante();
+        configuraFabLocalizacao();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        verificarUsuarioLogado();
         recuperarLocais();
         recuperarEventos();
         invalidateOptionsMenu(); // O onCreateOptionsMenu( ) é chamado novamente
@@ -523,7 +531,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void markerClickListener() {
         mapa.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
+            public boolean onMarkerClick(final Marker marker) {
                 // Calcular o deslocamento horizontal necessário para a densidade atual da tela
                 final int dX = getResources().getDimensionPixelSize(R.dimen.map_dx);
                 // Calcular o deslocamento vertical necessário para a densidade atual da tela
@@ -535,11 +543,42 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Mudar o ponto que usaremos para centralizar o mapa
                 markerPoint.offset(dX, dY);
                 final LatLng novoCentro = projection.fromScreenLocation(markerPoint);
-                // Buttery smooth camera swoop :)
+
+                // Movimento de câmera suavizado
                 mapa.animateCamera(CameraUpdateFactory.newLatLng(novoCentro), 500, null);
-                // Show the info window (as the overloaded method would)
-                marker.showInfoWindow();
-                return true; // Consume the event since it was dealt with
+
+                /* A idéia aqui é passar no snippet do Marker:
+                    - nome da imagem (nome da image = id do local; que será usado para pegar a imagem do storage no firebase) e
+                    - url que será recuperado a partir do nome da imagem (que será usado para fazer download da imagem)
+                 */
+                String snippet = marker.getSnippet();
+                /* Aqui verifica o nome da imagem (id do local), que sempre é salvo no campo snippet do marker entre "(" ")"*/
+                String nomeImg = snippet.substring(snippet.indexOf("(") + 1, snippet.indexOf(")"));
+
+                /* Aqui recupera a Url do local, a partir do nome da imagem recuperado acima*/
+
+                    imgRef.child("locais").child(nomeImg+ ".png").getDownloadUrl()
+                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    String snippet = marker.getSnippet();
+                                    /* Aqui verifica se já contém a url concatenada no campo snippet do marker entre "[" "]"
+                                     *  Se não tiver a url salva no snippet, realiza o processo de concatenação
+                                     * */
+                                    if(!snippet.contains("[") && !snippet.contains("]")) {
+                                        String img = snippet+"["+uri+"]";
+                                        marker.setSnippet(img);
+                                    }
+                                    marker.showInfoWindow();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            marker.showInfoWindow();
+                        }
+                    });
+
+                return true;
             }
         });
     }
@@ -583,8 +622,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-
-
     public void removerMarcadoresDoMapa() { //Remove os marcadores do Mapa em si
         for (Marker marker : marcadores) {
             marker.remove();
@@ -600,7 +637,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(new LatLng(local.getLatitude(), local.getLongitude()))
                     .title(local.getNome())
-                    .snippet(local.getDescricao());
+                    .snippet("("+local.getId()+")");
 
             marcador = mapa.addMarker(markerOptions);
             marcadores.add(marcador);
@@ -640,45 +677,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    /******************************************* Callback Firebase ********************************/
-
-    /*private void readData(final FirebaseCallback firebaseCallback) {
-        valueEventListenerLocais = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                listaLocais.clear();//limpa a lista para não duplicar
-                for (DataSnapshot dados: dataSnapshot.getChildren()){
-                    Local local = dados.getValue(Local.class);
-                    listaLocais.add(local);
-                    //TODO: fazer método de markadores toda vez que o atualizar a lista de locais
-                }
-                Log.d("forLista", "dataChange1");
-                firebaseCallback.onCallback(listaLocais);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d("forLista", databaseError.getMessage());
-            }
-        };
-        locaisRef.addValueEventListener(valueEventListenerLocais);
-    }
-
-    private interface FirebaseCallback {
-        void onCallback(List<Local> list);
-    }*/
-
-    /************************************** Verificar usuário logado ******************************/
-    public void verificarUsuarioLogado() {
-        //autenticacao.signOut(); //descomentar e rodar o app para deslogar o usuario
-        firebaseUser = autenticacao.getCurrentUser();
-        if ( firebaseUser != null){
-            Toast.makeText(this, "Usuário Logado!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Usuário não Logado!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     /************************************** Verificar Permissão de localização ********************/
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -705,6 +703,16 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    /********************************** Métodos do Menu Flutuante *********************************/
+    private void configuraFabLocalizacao() {
+        fabLocalizacao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MapaActivity.this, "Loc", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /********************************** Métodos do Menu Flutuante *********************************/
@@ -742,14 +750,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        //Verifica se usuario está Logado para remover ou adicionar botões no menu
-        if (firebaseUser == null) {
-            menu.findItem(R.id.menuSair).setVisible(false);
-            menu.findItem(R.id.menuPerfil).setVisible(false);
-        } else {
-            menu.findItem(R.id.menuLogin).setVisible(false);
-        }
-
         return true;
     }
 
@@ -757,32 +757,11 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.menuConfiguracoes:
-                //Abrir menu de pesquisa
-                startActivity(new Intent(this, AddLocalActivity.class));
-                Toast.makeText(this, "Abrir Intent de Configuração", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.menuSair:
-                autenticacao.signOut();
-                finish();
-                Toast.makeText(this, "Usuário desconectado!", Toast.LENGTH_SHORT).show();
-                startActivity(getIntent());//Recarrefa a activity
-                break;
-
-            case R.id.menuLogin:
-                Toast.makeText(this, "Abrir login!", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(MapaActivity.this, LoginActivity.class));//Recarrefa a activity
-                break;
-
             case R.id.menuTutorial:
-                Toast.makeText(this, "Abrir Tutorial", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(MapaActivity.this, TutorialActivity.class));//Recarrefa a activity
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-
-
 }

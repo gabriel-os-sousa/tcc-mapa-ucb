@@ -15,7 +15,7 @@
         <ImageView
             android:id="@+id/adapterInfoWindowImagem"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="200dp"
             android:scaleType="centerCrop"
             app:srcCompat="@drawable/default_img" />
 
@@ -24,13 +24,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="2dp"
+            android:gravity="center"
             android:text="Título"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
+        <!--<TextView
             android:id="@+id/adapterInfoWindowDescricao"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +41,7 @@
             android:minLines="1"
             android:text="Subtitulo"
             android:textColor="@android:color/tertiary_text_light"
-            android:textSize="18sp" />
+            android:textSize="18sp" />-->
 
     </LinearLayout>
 

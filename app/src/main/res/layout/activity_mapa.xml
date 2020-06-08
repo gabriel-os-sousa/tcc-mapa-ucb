@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     tools:context=".activity.MapaActivity">
 
-
     <com.google.android.material.appbar.AppBarLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -20,7 +19,31 @@
 
     <include layout="@layout/content_mapa" />
 
-    <include layout="@layout/content_floating_menu"/>
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_localizacao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="15dp"
+        android:clickable="true"
+        android:src="@drawable/ic_localizacao_branco"
+        fab:fabSize="normal" />-->
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/fab_localizacao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:clickable="true"
+        android:src="@drawable/ic_localizacao_branco"
+        app:fab_colorNormal="@color/colorAccent"
+        app:fab_colorPressed="@color/colorPrimary"
+        fab:fabSize="normal" />
+
+    <include layout="@layout/content_floating_menu" />
     <!--<com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fab_menu_principal"
         android:layout_width="wrap_content"

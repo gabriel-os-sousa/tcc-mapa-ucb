@@ -36,11 +36,10 @@
             android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/imageView3"
+                android:id="@+id/imageLocalSelecionado"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/default_img" />
+                android:scaleType="centerCrop" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -49,33 +48,41 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textNomeLocal"
+                    android:id="@+id/textNomeLocalSelecionado"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
                     android:text="Nome"
                     android:textAllCaps="false"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="36sp"
+                    android:textSize="30sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/textDescricaoLocal"
+                    android:id="@+id/textTipoLocalSelecionado"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Descricao"
-                    android:textSize="24sp" />
+                    android:layout_marginBottom="5dp"
+                    android:text="Tipo"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/textLatitudeLocal"
+                    android:id="@+id/textDescricaoLocalSelecionado"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Latitude" />
+                    android:layout_marginBottom="20dp"
+                    android:text="Descrição"
+                    android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/textLongitudeLocal"
+                    android:id="@+id/textAndarLocalSelecionado"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Longitude" />
+                    android:drawableLeft="@drawable/ic_andar_16dp"
+                    android:drawablePadding="3dp"
+                    android:text="Andar" />
+
             </LinearLayout>
 
         </LinearLayout>

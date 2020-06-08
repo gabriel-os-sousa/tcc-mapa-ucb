@@ -3,32 +3,32 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
+    <!--<item
         android:id="@+id/menuConfiguracoes"
         android:title="Adicionar Locais (teste)"
         app:showAsAction="never"
-        />
+        />-->
 
-    <item
+    <!--<item
         android:id="@+id/menuPerfil"
         android:title="Perfil"
         app:showAsAction="never"
-        />
-    <item
+        />-->
+    <!--<item
         android:id="@+id/menuLogin"
         android:title="Login"
         app:showAsAction="never"
-        />
+        />-->
     <item
         android:id="@+id/menuTutorial"
         android:title="Tutorial"
         app:showAsAction="never"
         />
 
-    <item
+    <!--<item
         android:id="@+id/menuSair"
         android:title="Sair"
         app:showAsAction="never"
-        />
+        />-->
 
 </menu>

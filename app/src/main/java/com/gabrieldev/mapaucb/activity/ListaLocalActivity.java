@@ -220,7 +220,6 @@ public class ListaLocalActivity extends AppCompatActivity {
 
         Log.d("searchV: ", "changeQR "+ listaLocalBusca);
 
-
         //Recriar o recyclerview com os dados
         adapterLocal = new AdapterLocal(listaLocalBusca);
         recyclerLocais.setAdapter(adapterLocal);

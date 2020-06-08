@@ -1,5 +1,6 @@
 package com.gabrieldev.mapaucb.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,18 +10,25 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gabrieldev.mapaucb.R;
+import com.gabrieldev.mapaucb.config.ConfiguracaoFirebase;
 import com.gabrieldev.mapaucb.model.Evento;
+import com.gabrieldev.mapaucb.model.Local;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHolder>{
     List<Evento> eventos;
+    DatabaseReference localRef;
 
     public AdapterEventos(List<Evento> eventos) {
         this.eventos = eventos;
     }
-
 
     @NonNull
     @Override
@@ -30,15 +38,34 @@ public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdapterEventos.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final AdapterEventos.MyViewHolder holder, int position) {
         Evento evento = eventos.get(position);
 
         holder.nome.setText(evento.getNome());
-        holder.local.setText(evento.getLocal());
+        //holder.local.setText(evento.getLocal());
 
-        Calendar cInicial = Calendar.getInstance();
+        //Recuperar o nome do local
+        localRef = ConfiguracaoFirebase.getFirebaseDatabase().child("locais");
+        localRef.child(evento.getLocal()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Local local = dataSnapshot.getValue(Local.class);
+                Log.d("adaptereventos", "onDataChange: "+ local.getNome());
+                holder.local.setText(local.getNome());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                holder.local.setText("Local não encontrado");
+            }
+        });
+
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+
+        Calendar cInicial = Calendar.getInstance(timeZone);
         cInicial.setTimeInMillis(evento.getData_inicio());
-        Calendar cFinal = Calendar.getInstance();
+
+        Calendar cFinal = Calendar.getInstance(timeZone);
         cFinal.setTimeInMillis(evento.getData_fim());
 
         //MONTH = 0 pra janeiro / DAY_OF_MONTH = 1 para o primeiro dia do mês
@@ -46,12 +73,18 @@ public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHo
         cInicial.add(Calendar.MONTH,1);
         cFinal.add(Calendar.MONTH,1);
 
+        //se o dia e o meses forem iguais, evento de só um dia
         if((cInicial.get(Calendar.MONTH) == cFinal.get(Calendar.MONTH)) && (cInicial.get(Calendar.DAY_OF_MONTH) == cFinal.get(Calendar.DAY_OF_MONTH))) {
-            String data = cInicial.get(Calendar.DAY_OF_MONTH )+"/"+cInicial.get(Calendar.MONTH);
-            holder.data.setText(data);
+            String dataini = cInicial.get(Calendar.DAY_OF_MONTH )+"/"+cInicial.get(Calendar.MONTH);
+            holder.data.setText(dataini);
+
+        //se o evento for mais de um dia
+        } else if (cInicial.get(Calendar.MONTH) != cFinal.get(Calendar.MONTH)){
+            String datafim = ((cInicial.get(Calendar.DAY_OF_MONTH))+1)+"/"+cInicial.get(Calendar.MONTH)+" a "+cFinal.get(Calendar.DAY_OF_MONTH)+"/"+cFinal.get(Calendar.MONTH);
+            holder.data.setText(datafim);
         } else {
-            String data = cInicial.get(Calendar.DAY_OF_MONTH)+"/"+cInicial.get(Calendar.MONTH)+" a "+cFinal.get(Calendar.DAY_OF_MONTH)+"/"+cFinal.get(Calendar.MONTH);
-            holder.data.setText(data);
+            String datafim = cInicial.get(Calendar.DAY_OF_MONTH)+"/"+cInicial.get(Calendar.MONTH)+" a "+cFinal.get(Calendar.DAY_OF_MONTH)+"/"+cFinal.get(Calendar.MONTH);
+            holder.data.setText(datafim);
         }
 
     }

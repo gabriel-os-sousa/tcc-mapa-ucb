@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_drop_down_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/D:/Arquivos%20de%20Programas/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_my_location_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,8 +29,8 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_search_back_branco" />
-                            <entry key="sourceFile" value="C:\Users\Gabriel\Downloads\visibility_off-black-24dp.svg" />
+                            <entry key="outputName" value="ic_localizacao_branco" />
+                            <entry key="sourceFile" value="C:\Users\Gabriel\Downloads\event-black-18dp.svg" />
                           </map>
                         </option>
                       </PersistentState>

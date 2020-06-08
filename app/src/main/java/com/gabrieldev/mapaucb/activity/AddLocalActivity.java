@@ -1,30 +1,21 @@
 package com.gabrieldev.mapaucb.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.gabrieldev.mapaucb.R;
-import com.gabrieldev.mapaucb.helper.Base64Custom;
 import com.gabrieldev.mapaucb.model.Local;
-import com.gabrieldev.mapaucb.model.Usuario;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
-
-import java.text.DecimalFormat;
 
 public class AddLocalActivity extends AppCompatActivity implements OnMapReadyCallback{
     private EditText textViewNome, textViewDescricao, textViewLatitude, textViewLongitude, textViewTipo;
@@ -54,6 +45,7 @@ public class AddLocalActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     public void validarCamposLocal (View view) {
+
         //recuperar textos dos campos
         String textoNome = textViewNome.getText().toString();
         String textoDescricao = textViewDescricao.getText().toString();
@@ -62,41 +54,27 @@ public class AddLocalActivity extends AppCompatActivity implements OnMapReadyCal
         String textoTipo = textViewTipo.getText().toString();
 
         //Verifica se os campos estão vazios
-        if (!textoNome.isEmpty()) { //verifica nome
-            if (!textoDescricao.isEmpty()) { //verifica sobrenome
-                if (!textoLatitude.isEmpty()) { //verifica email
-                    if (!textoLongitude.isEmpty()) { //verifica senha
-                        if (!textoTipo.isEmpty()) { //verifica senha
-                            Local local = new Local();
-
-                            local.setNome(textoNome);
-                            local.setDescricao(textoDescricao);
-                            local.setLatitude(Double.parseDouble(textoLatitude));
-                            local.setLongitude(Double.parseDouble(textoLongitude));
-                            local.setTipo(textoTipo);
-                            local.setzIndex(1);
-
-                            //String idLocalAdd = Base64Custom.codificarBase64(local.getNome());
-                            local.setId(textoNome);
-
-                            local.salvar();
-                            finish();
-
-                        } else {
-                            Toast.makeText(this, "Preencha o Tipo!", Toast.LENGTH_SHORT).show();
-                        }
-
-                    } else {
-                        Toast.makeText(this, "Preencha a longitude!", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(this, "Preencha a latitude!", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, "Preencha a descrição!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
+        if (textoNome.isEmpty()) {
             Toast.makeText(this, "Preencha o nome!", Toast.LENGTH_SHORT).show();
+        } else if (textoDescricao.isEmpty()) {
+            Toast.makeText(this, "Preencha a descrição!", Toast.LENGTH_SHORT).show();
+        } else if (textoLatitude.isEmpty()) {
+            Toast.makeText(this, "Preencha a latitude!", Toast.LENGTH_SHORT).show();
+        } else if (textoLongitude.isEmpty()) {
+            Toast.makeText(this, "Preencha a longitude!", Toast.LENGTH_SHORT).show();
+        } else if (textoTipo.isEmpty()) {
+            Toast.makeText(this, "Preencha o Tipo!", Toast.LENGTH_SHORT).show();
+        } else {
+            Local local = new Local();
+
+            local.setNome(textoNome);
+            local.setDescricao(textoDescricao);
+            local.setLatitude(Double.parseDouble(textoLatitude));
+            local.setLongitude(Double.parseDouble(textoLongitude));
+            local.setTipo(textoTipo);
+            local.setzIndex(1);
+            local.salvar();
+            finish();
         }
     }
 
@@ -107,7 +85,6 @@ public class AddLocalActivity extends AppCompatActivity implements OnMapReadyCal
 
         mapa2.getUiSettings().setMapToolbarEnabled(false);
         mapa2.getUiSettings().setZoomControlsEnabled(true);
-
 
         mapa2.moveCamera(CameraUpdateFactory.newLatLngZoom(UCB,16));
 

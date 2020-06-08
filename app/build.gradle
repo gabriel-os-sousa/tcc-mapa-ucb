@@ -41,6 +41,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:17.0.0'
     implementation 'com.google.firebase:firebase-database:18.0.0'
     implementation 'com.google.firebase:firebase-auth:18.0.0'
+    implementation 'com.google.firebase:firebase-storage:18.0.0'
+    implementation 'com.firebaseui:firebase-ui-storage:3.2.1'
     implementation 'com.google.android.material:material:1.1.0'
 
     /*Material Intro - Slides*/
@@ -54,5 +56,8 @@ dependencies {
 
     /*Calendar View*/
     implementation 'com.github.prolificinteractive:material-calendarview:1.6.1'
+
+    /*Picasso Image*/
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
 }

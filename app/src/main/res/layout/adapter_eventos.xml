@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="15dp">
+    android:layout_margin="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,11 +29,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_place_cinza_10dp"
+            android:drawablePadding="3dp"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:paddingLeft="10dp"
-            android:text="Local"
+            android:paddingLeft="9dp"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -44,15 +45,17 @@
         android:layout_height="wrap_content"
         android:layout_weight="7"
         android:gravity="center|center_horizontal|center_vertical"
+        android:minHeight="50dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/textViewDataLabel"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_data_evento_cinza_24dp"
             android:gravity="center"
-            android:text="Data"
             android:textStyle="bold" />
 
         <TextView

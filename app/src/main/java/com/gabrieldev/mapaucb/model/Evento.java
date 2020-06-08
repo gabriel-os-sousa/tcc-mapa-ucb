@@ -1,19 +1,19 @@
 package com.gabrieldev.mapaucb.model;
 
-public class Evento {
+import java.io.Serializable;
+
+public class Evento implements Serializable {
+    private String id;
     private Long data_fim;
     private Long data_inicio;
     private String descricao;
     private String local;
     private String nome;
     private String tipo;
-
+    private String horario;
+    private Integer zIndex;
 
     public Evento() {
-    }
-
-    public void salvar () {
-
     }
 
     public Long getData_fim() {
@@ -56,11 +56,35 @@ public class Evento {
         this.tipo = tipo;
     }
 
+    public String getHorario() {
+        return horario;
+    }
+
+    public void setHorario(String horario) {
+        this.horario = horario;
+    }
+
     public String getLocal() {
         return local;
     }
 
     public void setLocal(String local) {
         this.local = local;
+    }
+
+    public Integer getzIndex() {
+        return zIndex;
+    }
+
+    public void setzIndex(Integer zIndex) {
+        this.zIndex = zIndex;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

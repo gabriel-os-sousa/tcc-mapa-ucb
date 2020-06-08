@@ -16,7 +16,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.EventosActivity"></activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -26,13 +25,13 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+        android:name="com.google.android.geo.API_KEY"
+        android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".activity.MapaActivity"
-            android:label="@string/title_activity_mapa"
-            android:theme="@style/AppTheme.NoActionBar">
+        android:name=".activity.MapaActivity"
+        android:label="@string/title_activity_mapa"
+        android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,24 +39,28 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.TutorialActivity"
-            android:theme="@style/Theme.Intro" />
+        android:name=".activity.TutorialActivity"
+        android:theme="@style/Theme.Intro" />
         <activity
-            android:name=".activity.LoginActivity"
-            android:label="@string/titulo_login"
-            android:parentActivityName=".activity.MapaActivity" />
+        android:name=".activity.LoginActivity"
+        android:label="@string/titulo_login"
+        android:parentActivityName=".activity.MapaActivity" />
         <activity
-            android:name=".activity.RedefinirSenhaActivity"
-            android:parentActivityName=".activity.LoginActivity" />
+        android:name=".activity.RedefinirSenhaActivity"
+        android:parentActivityName=".activity.LoginActivity" />
         <activity
-            android:name=".activity.CadastroActivity"
-            android:label="@string/titulo_cadastro"
-            android:parentActivityName=".activity.MapaActivity" />
+        android:name=".activity.CadastroActivity"
+        android:label="@string/titulo_cadastro"
+        android:parentActivityName=".activity.MapaActivity" />
         <activity android:name=".activity.LocalActivity" />
         <activity
-            android:name=".activity.ListaLocalActivity"
-            android:parentActivityName=".activity.MapaActivity" />
+        android:name=".activity.ListaLocalActivity"
+        android:parentActivityName=".activity.MapaActivity" />
         <activity android:name=".activity.AddLocalActivity" />
+        <activity android:name=".activity.EventosActivity" />
+        <activity android:name=".activity.EventoSelecionadoActivity"
+            android:parentActivityName=".activity.EventosActivity"/>
+
     </application>
 
 </manifest>
