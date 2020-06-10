@@ -16,4 +16,10 @@
     <color name="corFtSubMenuPressed">#2196F3</color>
     <color name="corFtSubMenuRipple">#2196F3</color>
 
+    <!-- Buttons Toggle-->
+    <color name="iconToggleOn">#E0E3E1</color>
+    <color name="iconToggleOff">#C8CCCA</color>
+    <color name="dividerIconToggle">#BDBFBE</color>
+    <color name="corBackgroudToggleButtons">#606060</color>
+
 </resources>

@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gabrieldev.mapaucb.R;
+import com.gabrieldev.mapaucb.model.TipoLocal;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 import com.squareup.picasso.Callback;
@@ -29,32 +30,37 @@ public class AdapterInfoWindow implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(final Marker marker) {
-        //recupera as referencias dos objetos da view
-        TextView tvTitulo = (TextView) mWindow.findViewById(R.id.adapterInfoWindowTitulo);
-        ImageView imgInfo = (ImageView) mWindow.findViewById(R.id.adapterInfoWindowImagem);
+        if((Integer) marker.getTag() != TipoLocal.MARKER_USER.getTipo()) {
+            //recupera as referencias dos objetos da view
+            TextView tvTitulo = (TextView) mWindow.findViewById(R.id.adapterInfoWindowTitulo);
+            ImageView imgInfo = (ImageView) mWindow.findViewById(R.id.adapterInfoWindowImagem);
 
-        //Seta os valores
-        tvTitulo.setText(marker.getTitle());
+            //Seta os valores
+            tvTitulo.setText(marker.getTitle());
 
-        /*Recupera o Url que está salvo no campo snippet do marker entre "[" "]"*/
-        String snippet = marker.getSnippet();
+            /*Recupera o Url que está salvo no campo snippet do marker entre "[" "]"*/
+            String snippet = marker.getSnippet();
 
 
-        /*Se não tiver imagem no Firebase Storage, colocar imagem padrão*/
-        if(snippet.contains("[") && snippet.contains("]")) {
-            String url;
-            url = snippet.substring(snippet.indexOf("[") + 1, snippet.indexOf("]"));
-            Picasso.get()
-                    .load(url)
-                    //.fit() //redimensionar causa bug e a imagem só é renderizada no sengundo clicle no infowindow
-                    .error(R.drawable.default_img)
-                    .into(imgInfo, new MarkerCallback(marker, url,imgInfo));
-        } else {
-            Drawable url = mContext.getResources().getDrawable(R.drawable.default_img);
-            imgInfo.setImageDrawable(url);
+            /*Se não tiver imagem no Firebase Storage, colocar imagem padrão*/
+            if (snippet.contains("[") && snippet.contains("]")) {
+                String url;
+                url = snippet.substring(snippet.indexOf("[") + 1, snippet.indexOf("]"));
+                Picasso.get()
+                        .load(url)
+                        //.fit() //redimensionar causa bug e a imagem só é renderizada no sengundo clicle no infowindow
+                        .error(R.drawable.default_img)
+                        .resize(imgInfo.getMaxWidth(), imgInfo.getMaxHeight())
+                        .centerCrop()
+                        .into(imgInfo, new MarkerCallback(marker, url, imgInfo));
+            } else {
+                Drawable url = mContext.getResources().getDrawable(R.drawable.default_img);
+                imgInfo.setImageDrawable(url);
+            }
+
+            return mWindow;
         }
-
-        return mWindow;
+        return null;
     }
 
     /*Classe de Callback para a biblioteca Picasso*/

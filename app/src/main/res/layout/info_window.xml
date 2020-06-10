@@ -15,9 +15,12 @@
         <ImageView
             android:id="@+id/adapterInfoWindowImagem"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/default_img" />
+            android:layout_height="wrap_content"
+            android:maxWidth="250dp"
+            android:maxHeight="150dp"
+            android:minWidth="250dp"
+            android:minHeight="150dp"
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/adapterInfoWindowTitulo"

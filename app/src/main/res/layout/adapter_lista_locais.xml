@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:layout_marginBottom="15dp"
+    android:layout_margin="5dp"
+    android:layout_marginBottom="10dp"
     android:orientation="horizontal">
 
     <!--<LinearLayout
@@ -71,6 +71,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_andar_16dp"
+            android:drawablePadding="5dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:paddingLeft="10dp"

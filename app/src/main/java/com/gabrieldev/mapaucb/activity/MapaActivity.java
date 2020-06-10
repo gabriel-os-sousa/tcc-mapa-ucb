@@ -1,12 +1,20 @@
 package com.gabrieldev.mapaucb.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,13 +24,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.gabrieldev.mapaucb.R;
 import com.gabrieldev.mapaucb.adapter.AdapterInfoWindow;
@@ -33,6 +43,7 @@ import com.gabrieldev.mapaucb.dijkstra.Node;
 import com.gabrieldev.mapaucb.helper.Permissoes;
 import com.gabrieldev.mapaucb.model.Evento;
 import com.gabrieldev.mapaucb.model.Local;
+import com.gabrieldev.mapaucb.model.TipoLocal;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -41,6 +52,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -49,8 +62,6 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -60,11 +71,43 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapaActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
     /*Google Maps*/
     private GoogleMap mapa;
-    private List<Marker> marcadores = new ArrayList<>() ;
-    private Button buttonToogleMarcadores;
+    private List<Marker> marcadores = new ArrayList<>();
+
+    /*Botões toggle marcadores*/
+    private ToggleButton
+            toggleBlocos,
+            toggleSalas,
+            toggleEsportes,
+            toggleRefeicoes,
+            toggleEstacionamentos,
+            toggleAtendimentos,
+            toggleBanheiros,
+            toggleBibliotecas,
+            toggleLaboratorios,
+            toggleAuditorios,
+            toggleOutros;
+
+    /*Localização do usuário*/
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private Marker markerLocalizacaoUsuario;
+    private LatLng locUsuario;
+
+    /*Sensores*/
+    SensorManager sensorManager;
+    private Sensor sensor;
+    private Sensor sensorAccelerometer;
+    private Sensor sensorMagneticField;
+
+    private float[] valuesAccelerometer;
+    private float[] valuesMagneticField;
+
+    private float[] matrixR;
+    private float[] matrixI;
+    private float[] matrixValues;
 
     /*Para carregar a lista de locais*/
     private List<Local> listaLocais = new ArrayList<>();
@@ -79,12 +122,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ValueEventListener valueEventListenerEventos;
     private StorageReference imgRef = ConfiguracaoFirebase.getFirebaseStorage();
 
-    /*Verificar usuário*/
-    private FirebaseAuth autenticacao;
-    private FirebaseUser firebaseUser;
-
     /*Verificar permissões*/
-    private String[] permissoes = new String[] {
+    private String[] permissoes = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION
     };
 
@@ -101,10 +140,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     /*Tag log*/
     private final String TAG = "meulog";
 
-    /*Location*/
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,17 +147,16 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Configura a toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
-        toolbar.setTitle("Mapa");
+        toolbar.setTitle("Mapa UCB");
         setSupportActionBar(toolbar);
 
         //Validar permissões
         Permissoes.validarPermissoes(permissoes, this, 1);
 
         //Configura a referência do banco de dados / autenticacao
-        autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
         locaisRef = ConfiguracaoFirebase.getFirebaseDatabase().child("locais");
         eventosRef = ConfiguracaoFirebase.getFirebaseDatabase().child("eventos");
-        buttonToogleMarcadores = findViewById(R.id.toogleMarcadores);
+        //buttonToogleMarcadores = findViewById(R.id.toogleMarcadores);
 
         //Configura os Fab's do menu flutuante
         fabLocais = findViewById(R.id.floating_menu_locais);
@@ -130,7 +164,23 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         fabMapa = findViewById(R.id.floating_menu_mapa);
         fabMenu = findViewById(R.id.fab_menu_principal);
         fabLocalizacao = findViewById(R.id.fab_localizacao);
+        //Deixa o botão de localização oculto até que o mapa esteja pronto
+        fabLocalizacao.setVisibility(View.GONE);
 
+        // Botões Toggle
+        toggleBlocos = findViewById(R.id.toggleBlocos);
+        toggleSalas = findViewById(R.id.toggleSalas);
+        toggleEsportes = findViewById(R.id.toggleEsportes);
+        toggleRefeicoes = findViewById(R.id.toggleRefeicoes);
+        toggleEstacionamentos = findViewById(R.id.toggleEstacionamentos);
+        toggleAtendimentos = findViewById(R.id.toggleAtendimentos);
+        toggleBanheiros = findViewById(R.id.toggleBanheiros);
+        toggleBibliotecas = findViewById(R.id.toggleBibliotecas);
+        toggleLaboratorios = findViewById(R.id.toggleLaboratorios);
+        toggleAuditorios = findViewById(R.id.toggleAuditorios);
+        toggleOutros = findViewById(R.id.toggleOutros);
+
+        configurarBotoesToggle();
 
         //Inicializar mapa - Obtem o SupportMapFragment e notifica quando o mapa está pronto para uso
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -138,7 +188,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Menu flutuante
         configuraMenuFlutuante();
-        configuraFabLocalizacao();
+
+        //Configura o sensor do celular para alterar a direção do marcador do usuário
+        sensor();
+
     }
 
     @Override
@@ -151,9 +204,29 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    protected void onResume() {
+        Log.d("lifecycle ", "resume Mapa");
+        getLocationManager();
+        sensorManager.registerListener(this, sensorAccelerometer, 100000000);
+        sensorManager.registerListener(this, sensorMagneticField, 100000000);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        sensorManager.unregisterListener(this, sensorAccelerometer);
+        sensorManager.unregisterListener(this, sensorMagneticField);
+        super.onPause();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         Log.d("lifecycle ", "stop Mapa");
+
+        // Remove atualizações de GPS quando a activity estiver em segundo plano
+        removeUpdatesLocation();
+
         locaisRef.removeEventListener(valueEventListenerLocais);
         eventosRef.removeEventListener(valueEventListenerEventos);
     }
@@ -168,6 +241,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onDestroy() {
         Log.d("lifecycle ", "destroy Mapa");
+        // Remove atualizações de GPS quando a activity estiver em segundo plano
+        removeUpdatesLocation();
         super.onDestroy();
     }
 
@@ -178,16 +253,17 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng centro_ucb = new LatLng(-15.8660717, -48.0305822);
         mapa = googleMap;
 
-        moverCamera(centro_ucb,16);
+        moverCamera(centro_ucb, 16);
         styleMap();
         configuraUi(); //Configuração de botões e Ui do Mapa
         infoWindowCustomizada(); //Configura a infowindo
         infoWindowClickListener();
         markerClickListener();
 
+        //Configura o botão de localização somente quando o mapa estiver pronto
+        configuraFabLocalizacao();
         //rotas();
         //pontosRotas();
-
     }
 
     /************************************ TesteCalcularRota ***************************************/
@@ -304,17 +380,17 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         // frente do bloco K
-        Location.distanceBetween(-15.864643, -48.029840 , -15.865500, -48.030127, distancia);
+        Location.distanceBetween(-15.864643, -48.029840, -15.865500, -48.030127, distancia);
         nodeA.addDestination(nodeB, distancia[0]);
 
         //biblioteca com bloco M
-        Location.distanceBetween(-15.865500, -48.030127 ,  -15.865200, -48.031146, distancia);
+        Location.distanceBetween(-15.865500, -48.030127, -15.865200, -48.031146, distancia);
         nodeB.addDestination(nodeC, distancia[0]);
 
-        Location.distanceBetween(-15.865500, -48.030127 , -15.865644, -48.030197, distancia);
+        Location.distanceBetween(-15.865500, -48.030127, -15.865644, -48.030197, distancia);
         nodeB.addDestination(nodeD, distancia[0]);
 
-        Location.distanceBetween(-15.865500, -48.030127 , -15.864643, -48.029840, distancia);
+        Location.distanceBetween(-15.865500, -48.030127, -15.864643, -48.029840, distancia);
         nodeB.addDestination(nodeA, distancia[0]);
 
 
@@ -334,10 +410,10 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         //frente biblioteca
-        Location.distanceBetween(-15.865556, -48.031541 , -15.865200, -48.031146, distancia);
+        Location.distanceBetween(-15.865556, -48.031541, -15.865200, -48.031146, distancia);
         nodeF.addDestination(nodeC, distancia[0]);
 
-        Location.distanceBetween(-15.865556, -48.031541 , -15.866191, -48.031270, distancia);
+        Location.distanceBetween(-15.865556, -48.031541, -15.866191, -48.031270, distancia);
         nodeF.addDestination(nodeG, distancia[0]);
 
         //Divisa biblioteca, estacionamento professores
@@ -359,15 +435,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         graph = Dijkstra.calculateShortestPathFromSource(graph, nodeA);
 
 
-        for (Node node : graph.getNodes()){
-            Log.d("TesteD", "-----> "+ node.getName());
+        for (Node node : graph.getNodes()) {
+            Log.d("TesteD", "-----> " + node.getName());
             if (node.getName().equals("Divisa biblioteca, estacionamento professores")) {
 
                 List<LatLng> coordList = new ArrayList<>();
 
-                for (Node nodeLatLng: node.getShortestPath()) {
+                for (Node nodeLatLng : node.getShortestPath()) {
                     coordList.add(nodeLatLng.getLatLng());
-                    Log.d("TesteD", "LatLng"+nodeLatLng.getLatLng());
+                    Log.d("TesteD", "LatLng" + nodeLatLng.getLatLng());
                 }
 
                 coordList.add(node.getLatLng()); //adiciona o ultimo
@@ -382,16 +458,15 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mapa.addPolyline(polylineOptions);
             }
 
-            for (Node node2: node.getShortestPath()) {
-                Log.d("TesteD", "-> "+ node2.getName());
+            for (Node node2 : node.getShortestPath()) {
+                Log.d("TesteD", "-> " + node2.getName());
             }
         }
 
 
-
     }
 
-    private void pontosRotas () {
+    private void pontosRotas() {
         ArrayList<LatLng> markers = new ArrayList<>();
 
         /*markers.add(new LatLng(-15.864650, -48.029828));
@@ -423,11 +498,11 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         float[] results = new float[1];
         Location.distanceBetween(-15.865743, -48.030076, -15.864650, -48.029828, results);
 
-        Log.d(TAG, "distancia: "+ results[0]);
+        Log.d(TAG, "distancia: " + results[0]);
 
     }
 
-    private void rotas () {
+    private void rotas() {
         Polyline p1 = mapa.addPolyline(new PolylineOptions()
                 .clickable(true)
                 .add(
@@ -501,7 +576,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void moverCamera(LatLng local, int zoom) {
-        mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(local,zoom));
+        mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(local, zoom));
     }
 
     public void moverCamera(LatLng local) {
@@ -512,17 +587,19 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapa.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                Local localSelecionadoInfoWindow = null;
+                if((Integer) marker.getTag() != TipoLocal.MARKER_USER.getTipo()) {
+                    Local localSelecionadoInfoWindow = null;
 
-                for (Local local : listaLocais){
-                    if (marker.getTitle().contains(local.getNome())) {
-                        localSelecionadoInfoWindow = local;
+                    for (Local local : listaLocais) {
+                        if (marker.getTitle().contains(local.getNome())) {
+                            localSelecionadoInfoWindow = local;
+                        }
                     }
-                }
 
-                Intent i = new Intent(MapaActivity.this, LocalActivity.class);
-                i.putExtra("localSelecionado", localSelecionadoInfoWindow);
-                startActivity(i);
+                    Intent i = new Intent(MapaActivity.this, LocalActivity.class);
+                    i.putExtra("localSelecionado", localSelecionadoInfoWindow);
+                    startActivity(i);
+                }
             }
         });
 
@@ -532,32 +609,39 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapa.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(final Marker marker) {
-                // Calcular o deslocamento horizontal necessário para a densidade atual da tela
-                final int dX = getResources().getDimensionPixelSize(R.dimen.map_dx);
-                // Calcular o deslocamento vertical necessário para a densidade atual da tela
-                final int dY = getResources().getDimensionPixelSize(R.dimen.map_dy);
-                final Projection projection = mapa.getProjection();
-                final Point markerPoint = projection.toScreenLocation(
-                        marker.getPosition()
-                );
-                // Mudar o ponto que usaremos para centralizar o mapa
-                markerPoint.offset(dX, dY);
-                final LatLng novoCentro = projection.fromScreenLocation(markerPoint);
 
-                // Movimento de câmera suavizado
-                mapa.animateCamera(CameraUpdateFactory.newLatLng(novoCentro), 500, null);
+                if((Integer) marker.getTag() == TipoLocal.MARKER_USER.getTipo()) {
+                    // false ele abre a infowindow
+                    // true não abre a infowindow
+                    return false;
+                } else {
+                    // Calcular o deslocamento horizontal necessário para a densidade atual da tela
+                    final int dX = getResources().getDimensionPixelSize(R.dimen.map_dx);
+                    // Calcular o deslocamento vertical necessário para a densidade atual da tela
+                    final int dY = getResources().getDimensionPixelSize(R.dimen.map_dy);
+                    final Projection projection = mapa.getProjection();
+                    final Point markerPoint = projection.toScreenLocation(
+                            marker.getPosition()
+                    );
+                    // Mudar o ponto que usaremos para centralizar o mapa
+                    markerPoint.offset(dX, dY);
+                    final LatLng novoCentro = projection.fromScreenLocation(markerPoint);
 
-                /* A idéia aqui é passar no snippet do Marker:
-                    - nome da imagem (nome da image = id do local; que será usado para pegar a imagem do storage no firebase) e
-                    - url que será recuperado a partir do nome da imagem (que será usado para fazer download da imagem)
-                 */
-                String snippet = marker.getSnippet();
-                /* Aqui verifica o nome da imagem (id do local), que sempre é salvo no campo snippet do marker entre "(" ")"*/
-                String nomeImg = snippet.substring(snippet.indexOf("(") + 1, snippet.indexOf(")"));
+                    // Movimento de câmera suavizado
+                    mapa.animateCamera(CameraUpdateFactory.newLatLng(novoCentro), 500, null);
 
-                /* Aqui recupera a Url do local, a partir do nome da imagem recuperado acima*/
+                    /* A idéia aqui é passar no snippet do Marker:
+                        - nome da imagem (nome da image = id do local; que será usado para pegar a imagem do storage no firebase) e
+                        - url que será recuperado a partir do nome da imagem (que será usado para fazer download da imagem)
+                     */
+                    String snippet = marker.getSnippet();
+                    /* Aqui verifica o nome da imagem (id do local), que sempre é salvo no campo snippet do marker entre "(" ")"*/
 
-                    imgRef.child("locais").child(nomeImg+ ".png").getDownloadUrl()
+                    String nomeImg = snippet.substring(snippet.indexOf("(") + 1, snippet.indexOf(")"));
+
+                    /* Aqui recupera a Url do local, a partir do nome da imagem recuperado acima*/
+
+                    imgRef.child("locais").child(nomeImg + ".png").getDownloadUrl()
                             .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
@@ -565,8 +649,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     /* Aqui verifica se já contém a url concatenada no campo snippet do marker entre "[" "]"
                                      *  Se não tiver a url salva no snippet, realiza o processo de concatenação
                                      * */
-                                    if(!snippet.contains("[") && !snippet.contains("]")) {
-                                        String img = snippet+"["+uri+"]";
+                                    if (!snippet.contains("[") && !snippet.contains("]")) {
+                                        String img = snippet + "[" + uri + "]";
                                         marker.setSnippet(img);
                                     }
                                     marker.showInfoWindow();
@@ -578,7 +662,8 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     });
 
-                return true;
+                    return true;
+                }
             }
         });
     }
@@ -601,14 +686,13 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void recuperarLocais() {
 
-        valueEventListenerLocais = locaisRef.addValueEventListener( new ValueEventListener() {
+        valueEventListenerLocais = locaisRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 listaLocais.clear();//limpa a lista para não duplicar
 
-                for (DataSnapshot dados: dataSnapshot.getChildren()){
+                for (DataSnapshot dados : dataSnapshot.getChildren()) {
                     Local local = dados.getValue(Local.class);
-                    Log.d("junior", "data: "+local.getDataCadastroCalendar());
                     listaLocais.add(local);
                 }
                 adicionarMarcadores();
@@ -628,45 +712,236 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void adicionarMarcadores( ) {
+    public void adicionarMarcadores() {
         removerMarcadoresDoMapa(); //Remove os marcadores do Mapa em si
         marcadores.clear(); //Remove os marcadores da Memória
 
-        for (Local local : listaLocais ) {
+        for (Local local : listaLocais) {
             Marker marcador;
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(new LatLng(local.getLatitude(), local.getLongitude()))
                     .title(local.getNome())
-                    .snippet("("+local.getId()+")");
+                    .zIndex(local.getzIndex())
+                    .snippet("(" + local.getId() + ")");// Colocar o Id do local que será usado para recuperar a imagem do firebase
 
             marcador = mapa.addMarker(markerOptions);
+            switch (local.getTipo()) {
+                case "bloco":
+                    marcador.setTag(TipoLocal.MARKER_BLOCO.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                    if (toggleBlocos.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "sala":
+                    marcador.setTag(TipoLocal.MARKER_SALA.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                    if (toggleSalas.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "esporte":
+                    marcador.setTag(TipoLocal.MARKER_ESPORTE.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                    if (toggleEsportes.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "refeicao":
+                    marcador.setTag(TipoLocal.MARKER_REFEICOES.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                    if (toggleRefeicoes.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "estacionamento":
+                    marcador.setTag(TipoLocal.MARKER_ESTACIONAMENTO.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                    if (toggleEstacionamentos.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "atendimento":
+                    marcador.setTag(TipoLocal.MARKER_ATENDIMENTO.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    if (toggleAtendimentos.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "banheiro":
+                    marcador.setTag(TipoLocal.MARKER_BANHEIRO.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    if (toggleBanheiros.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "biblioteca":
+                    /*TODO: Colocar outros tipos aqui para setar os icons*/
+                    marcador.setTag(TipoLocal.MARKER_BIBLIOTECA.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    if (toggleBibliotecas.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "laboratorio":
+                    /*TODO: Colocar outros tipos aqui para setar os icons*/
+                    marcador.setTag(TipoLocal.MARKER_LABORATORIO.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    if (toggleLaboratorios.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                case "auditorio":
+                    /*TODO: Colocar outros tipos aqui para setar os icons*/
+                    marcador.setTag(TipoLocal.MARKER_AUDITORIO.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    if (toggleAuditorios.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+                    break;
+                default:
+                    marcador.setTag(TipoLocal.MARKER_OUTRO.getTipo());
+                    marcador.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                    if (toggleOutros.isChecked())
+                        marcador.setVisible(true);
+                    else
+                        marcador.setVisible(false);
+            }
+
             marcadores.add(marcador);
         }
 
     }
 
-    public void toggleMarcadores(View view){
-        for (Marker marker: marcadores) {
-            //Log.d("forLista", "--> "+ marker.getTitle());
-            if(marker.isVisible())
-                marker.setVisible(false);
-            else
-                marker.setVisible(true);
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    public void toggleMarcadores(Integer tipo, boolean status) {
+        for (Marker marker : marcadores) {
+            Log.d(TAG, "Mostrar: marker.getTag ===> "+marker.getTag());
+            if (marker.getTag() == tipo){
+                marker.setVisible(status);
+            }
         }
     }
 
-    public void recuperarEventos () {
+    public void configurarBotoesToggle () {
+        toggleBlocos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_BLOCO.getTipo(), on);
+            }
+        });
+
+        toggleBibliotecas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_BIBLIOTECA.getTipo(), on);
+            }
+        });
+
+        toggleSalas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_SALA.getTipo(), on);
+            }
+        });
+
+        toggleEsportes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_ESPORTE.getTipo(), on);
+            }
+        });
+
+        toggleRefeicoes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_REFEICOES.getTipo(), on);
+            }
+        });
+
+        toggleEstacionamentos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_ESTACIONAMENTO.getTipo(), on);
+            }
+        });
+
+        toggleAtendimentos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_ATENDIMENTO.getTipo(), on);
+            }
+        });
+
+        toggleBanheiros.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_BANHEIRO.getTipo(), on);
+            }
+        });
+
+        toggleAuditorios.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_AUDITORIO.getTipo(), on);
+            }
+        });
+
+        toggleLaboratorios.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_LABORATORIO.getTipo(), on);
+            }
+        });
+
+        toggleOutros.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean on = ((ToggleButton) view).isChecked();
+                toggleMarcadores(TipoLocal.MARKER_OUTRO.getTipo(), on);
+            }
+        });
+    }
+
+    public void recuperarEventos() {
         /*TODO: Adicionar marcadores para eventos*/
-        valueEventListenerEventos = eventosRef.addValueEventListener( new ValueEventListener() {
+        valueEventListenerEventos = eventosRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 listaEventos.clear();//limpa a lista para não duplicar
 
-                for (DataSnapshot dados: dataSnapshot.getChildren()){
+                for (DataSnapshot dados : dataSnapshot.getChildren()) {
                     Evento evento = dados.getValue(Evento.class);
                     listaEventos.add(evento);
                     /*TODO: Verificar a data para mostrar apenas os eventos do dia no mapa*/
-                    //Log.d("forEventos", "->"+evento.getNome());
                 }
             }
 
@@ -690,7 +965,7 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void alertaValidacaoPermissao() {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Permissões Negadas");
         builder.setMessage("Para utilizar o app é necessário aceitar as permissões");
         builder.setCancelable(false);
@@ -705,14 +980,171 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         dialog.show();
     }
 
-    /********************************** Métodos do Menu Flutuante *********************************/
+    /********************************** Métodos Localização usuário *********************************/
     private void configuraFabLocalizacao() {
+        fabLocalizacao.setVisibility(View.VISIBLE);
         fabLocalizacao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MapaActivity.this, "Loc", Toast.LENGTH_SHORT).show();
+                if ( !locationManager.isProviderEnabled( LocationManager.GPS_PROVIDER ) )
+                    alertaGPS();
+                if(locationManager.isProviderEnabled( LocationManager.GPS_PROVIDER ))
+                    recuperarLocalizacaoUsuario();
+
+                if(locUsuario != null){
+                    mapa.animateCamera(CameraUpdateFactory.newLatLngZoom(locUsuario, getZoomAtual()), 500, null);
+                }
+                locUsuario = null;
             }
         });
+    }
+
+    private void alertaGPS() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Seu GPS parece estar desativado, deseja ativar para visualizar sua localização?")
+                .setCancelable(false)
+                .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void recuperarLocalizacaoUsuario() {
+        getLocationManager();
+        //locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                //recuperar latitude e longitude
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                LatLng meuLocal = new LatLng(latitude, longitude);
+
+                if(markerLocalizacaoUsuario != null)
+                    markerLocalizacaoUsuario.remove();
+                markerLocalizacaoUsuario = mapa.addMarker(new MarkerOptions()
+                        .position(meuLocal)
+                        .title("Você está aqui!")
+                        .flat(true) //alinha ao norte o marcador, mesmo que gire o mapa
+                        .icon(bitmapDescriptorFromVector(MapaActivity.this,R.drawable.marker_usuario))
+                        //.icon(BitmapDescriptorFactory.fromResource(R.drawable.usuario))
+                        .anchor(0.5f, 0.5f));
+                markerLocalizacaoUsuario.setTag(TipoLocal.MARKER_USER.getTipo());
+                markerLocalizacaoUsuario.setRotation(location.getBearing());
+
+
+                /*TODO: Fazer verificação se a localização está dentro do limite da ucb*/
+                if (locUsuario == null) {
+                    getZoomAtual();
+                    mapa.animateCamera(CameraUpdateFactory.newLatLngZoom(meuLocal, getZoomAtual()), 500, null);
+                }
+                locUsuario = meuLocal;
+                Log.d(TAG, "Changed: "+ latitude +" / "+longitude + "  --> "+location.getBearing());
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                Toast.makeText(MapaActivity.this, "GPS ativado", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                if(markerLocalizacaoUsuario != null)
+                    markerLocalizacaoUsuario.remove();
+                locUsuario = null;
+                Toast.makeText(MapaActivity.this, "GPS desativado", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        //Solicitar atualizações de localização
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    10000,
+                    10,
+                    locationListener
+            );
+        }
+    }
+
+    private void getLocationManager() {
+        if(locationManager == null)
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    private void removeUpdatesLocation(){
+        if(locationManager != null && locationListener != null)
+            locationManager.removeUpdates(locationListener);
+    }
+
+    private float getZoomAtual() {
+        return mapa.getCameraPosition().zoom;
+    }
+
+    /************************************** Métodos do Menu********************************************/
+    private void sensor() {
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+        valuesAccelerometer = new float[3];
+        valuesMagneticField = new float[3];
+
+        matrixR = new float[9];
+        matrixI = new float[9];
+        matrixValues = new float[3];
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        switch(event.sensor.getType()){
+            case Sensor.TYPE_ACCELEROMETER:
+                for(int i =0; i < 3; i++){
+                    valuesAccelerometer[i] = event.values[i];
+                }
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                for(int i =0; i < 3; i++){
+                    valuesMagneticField[i] = event.values[i];
+                }
+                break;
+        }
+
+        boolean success = SensorManager.getRotationMatrix(matrixR, matrixI, valuesAccelerometer, valuesMagneticField);
+
+        if(success){
+            SensorManager.getOrientation(matrixR, matrixValues);
+
+            double azimuth = Math.toDegrees(matrixValues[0]);
+            double pitch = Math.toDegrees(matrixValues[1]);
+            double roll = Math.toDegrees(matrixValues[2]);
+
+            float f = (float)azimuth;
+            if (markerLocalizacaoUsuario != null)
+                markerLocalizacaoUsuario.setRotation(f);
+
+            //Log.d(TAG, "onSensorChanged: azimuth: "+ String.valueOf(azimuth)+ " / Pitch: "+ String.valueOf(pitch) + " / Roll"+ String.valueOf(roll));
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 
     /********************************** Métodos do Menu Flutuante *********************************/
