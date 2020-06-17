@@ -1,6 +1,5 @@
 package com.gabrieldev.mapaucb.adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gabrieldev.mapaucb.R;
+import com.gabrieldev.mapaucb.activity.EventosActivity;
 import com.gabrieldev.mapaucb.config.ConfiguracaoFirebase;
 import com.gabrieldev.mapaucb.model.Evento;
 import com.gabrieldev.mapaucb.model.Local;
@@ -20,7 +20,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHolder>{
     List<Evento> eventos;
@@ -50,7 +49,6 @@ public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHo
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Local local = dataSnapshot.getValue(Local.class);
-                Log.d("adaptereventos", "onDataChange: "+ local.getNome());
                 holder.local.setText(local.getNome());
             }
 
@@ -60,12 +58,10 @@ public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHo
             }
         });
 
-        TimeZone timeZone = TimeZone.getTimeZone("UTC");
-
-        Calendar cInicial = Calendar.getInstance(timeZone);
+        Calendar cInicial = Calendar.getInstance(EventosActivity.TIMEZONE);
         cInicial.setTimeInMillis(evento.getData_inicio());
 
-        Calendar cFinal = Calendar.getInstance(timeZone);
+        Calendar cFinal = Calendar.getInstance(EventosActivity.TIMEZONE);
         cFinal.setTimeInMillis(evento.getData_fim());
 
         //MONTH = 0 pra janeiro / DAY_OF_MONTH = 1 para o primeiro dia do mês
@@ -79,10 +75,10 @@ public class AdapterEventos extends RecyclerView.Adapter<AdapterEventos.MyViewHo
             holder.data.setText(dataini);
 
         //se o evento for mais de um dia
-        } else if (cInicial.get(Calendar.MONTH) != cFinal.get(Calendar.MONTH)){
+        } /*else if (cInicial.get(Calendar.MONTH) != cFinal.get(Calendar.MONTH)){
             String datafim = ((cInicial.get(Calendar.DAY_OF_MONTH))+1)+"/"+cInicial.get(Calendar.MONTH)+" a "+cFinal.get(Calendar.DAY_OF_MONTH)+"/"+cFinal.get(Calendar.MONTH);
             holder.data.setText(datafim);
-        } else {
+        }*/ else {
             String datafim = cInicial.get(Calendar.DAY_OF_MONTH)+"/"+cInicial.get(Calendar.MONTH)+" a "+cFinal.get(Calendar.DAY_OF_MONTH)+"/"+cFinal.get(Calendar.MONTH);
             holder.data.setText(datafim);
         }

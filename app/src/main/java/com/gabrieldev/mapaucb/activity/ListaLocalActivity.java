@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -205,6 +204,12 @@ public class ListaLocalActivity extends AppCompatActivity {
         locaisRef.removeEventListener(valueEventListenerLocais);
     }
 
+    @Override
+    protected void onDestroy() {
+        Log.d("meulog", "onDestroy lista locais: ");
+        super.onDestroy();
+    }
+
     public void pesquisarLocais(String texto) {
 
         listaLocalBusca.clear();
@@ -265,7 +270,8 @@ public class ListaLocalActivity extends AppCompatActivity {
         fabEventos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ListaLocalActivity.this, "Eventos", Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(ListaLocalActivity.this, EventosActivity.class);
+                startActivity(i);
             }
         });
     }
@@ -287,11 +293,14 @@ public class ListaLocalActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        /*switch (item.getItemId()) {
-            case R.id.menuPesquisarLocais:
-                break;
-        }*/
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

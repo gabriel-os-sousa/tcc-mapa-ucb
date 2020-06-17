@@ -7,6 +7,8 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
+
+
     <HorizontalScrollView
         android:id="@+id/scrollHorizontalMapa"
         android:layout_width="match_parent"
@@ -18,7 +20,7 @@
         <!--android:background="#D6D8D7"-->
         <LinearLayout
             android:id="@+id/linearLayout3"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:divider="@drawable/divider_icon_toggle"
             android:orientation="horizontal"
@@ -35,11 +37,11 @@
                 android:layout_weight="1"
                 android:background="@drawable/check"
                 android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
+                android:drawableTop="@drawable/tg_biblioteca_16dp"
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Bibliotecas"
                 android:textOn="Bibliotecas"
                 android:textSize="10sp" />
 
@@ -54,7 +56,7 @@
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Blocos"
                 android:textOn="Blocos"
                 android:textSize="10sp" />
 
@@ -65,11 +67,11 @@
                 android:layout_weight="1"
                 android:background="@drawable/check"
                 android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
+                android:drawableTop="@drawable/tg_atendimento_16dp"
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Atendimento"
                 android:textOn="Atendimento"
                 android:textSize="10sp" />
 
@@ -80,42 +82,12 @@
                 android:layout_weight="1"
                 android:background="@drawable/check"
                 android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
+                android:drawableTop="@drawable/tg_refeicoes_16dp"
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Refeição"
                 android:textOn="Refeição"
-                android:textSize="10sp" />
-
-            <ToggleButton
-                android:id="@+id/toggleSalas"
-                android:layout_width="80dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/check"
-                android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
-                android:drawablePadding="-10dp"
-                android:paddingTop="5dp"
-                android:text="ToggleButton"
-                android:textOff="Off"
-                android:textOn="Salas"
-                android:textSize="10sp" />
-
-            <ToggleButton
-                android:id="@+id/toggleEsportes"
-                android:layout_width="80dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/check"
-                android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
-                android:drawablePadding="-10dp"
-                android:paddingTop="5dp"
-                android:text="ToggleButton"
-                android:textOff="Off"
-                android:textOn="Esportes"
                 android:textSize="10sp" />
 
             <ToggleButton
@@ -125,14 +97,43 @@
                 android:layout_weight="1"
                 android:background="@drawable/check"
                 android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
-                android:drawablePadding="-10dp"
+                android:drawableTop="@drawable/tg_estacionamento_16dp"
+                android:drawablePadding="-5dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Estacionamentos"
                 android:textOn="Estacionamentos"
                 android:textSize="10sp" />
 
+            <ToggleButton
+                android:id="@+id/toggleSalas"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/check"
+                android:checked="false"
+                android:drawableTop="@drawable/tg_sala_16dp"
+                android:drawablePadding="-10dp"
+                android:paddingTop="5dp"
+                android:text="ToggleButton"
+                android:textOff="Salas"
+                android:textOn="Salas"
+                android:textSize="10sp" />
+
+            <ToggleButton
+                android:id="@+id/toggleEsportes"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/check"
+                android:checked="false"
+                android:drawableTop="@drawable/tg_esporte_16dp"
+                android:drawablePadding="-10dp"
+                android:paddingTop="5dp"
+                android:text="ToggleButton"
+                android:textOff="Esportes"
+                android:textOn="Esportes"
+                android:textSize="10sp" />
 
             <ToggleButton
                 android:id="@+id/toggleBanheiros"
@@ -140,12 +141,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/check"
-                android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
+                android:checked="false"
+                android:drawableTop="@drawable/tg_banheiros_16dp"
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Banheiros"
                 android:textOn="Banheiros"
                 android:textSize="10sp" />
 
@@ -155,12 +156,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/check"
-                android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
+                android:checked="false"
+                android:drawableTop="@drawable/tg_auditorios_16dp"
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Auditórios"
                 android:textOn="Auditórios"
                 android:textSize="10sp" />
 
@@ -170,12 +171,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/check"
-                android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
+                android:checked="false"
+                android:drawableTop="@drawable/tg_laboratorios_16dp"
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Laboratórios"
                 android:textOn="Laboratórios"
                 android:textSize="10sp" />
 
@@ -185,12 +186,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/check"
-                android:checked="true"
-                android:drawableTop="@drawable/ic_andar_16dp"
+                android:checked="false"
+                android:drawableTop="@drawable/tg_outros_16dp"
                 android:drawablePadding="-10dp"
                 android:paddingTop="5dp"
                 android:text="ToggleButton"
-                android:textOff="Off"
+                android:textOff="Outros"
                 android:textOn="Outros"
                 android:textSize="10sp" />
 
@@ -198,7 +199,7 @@
     </HorizontalScrollView>
 
     <fragment
-        android:id="@+id/map"
+        android:id="@+id/mapLocal"
         class="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"

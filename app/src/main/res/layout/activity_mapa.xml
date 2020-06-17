@@ -19,17 +19,6 @@
 
     <include layout="@layout/content_mapa" />
 
-    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_localizacao"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="15dp"
-        android:clickable="true"
-        android:src="@drawable/ic_localizacao_branco"
-        fab:fabSize="normal" />-->
-
     <com.github.clans.fab.FloatingActionButton
         android:id="@+id/fab_localizacao"
         android:layout_width="wrap_content"
@@ -44,39 +33,5 @@
         fab:fabSize="normal" />
 
     <include layout="@layout/content_floating_menu" />
-    <!--<com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/fab_menu_principal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="10dp"
-        fab:menu_icon="@drawable/ic_menu_branco"
-        fab:menu_colorNormal="@color/colorAccent"
-        fab:menu_colorPressed="@color/colorPrimary"
-        >
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/floating_menu_locais"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_pesquisar_branco"
-            fab:fab_colorNormal="@color/corFtSubMenuMapa"
-            fab:fab_colorPressed="@color/corFtSubMenuPressed"
-            fab:fab_label="Pesquisar Locais"
-            fab:fab_size="mini"
-            />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/floating_menu_eventos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_evento_branco"
-            fab:fab_colorNormal="@color/corFtSubMenuEventos"
-            fab:fab_colorPressed="@color/corFtSubMenuPressed"
-            fab:fab_label="Eventos"
-            fab:fab_size="mini"
-            />
-
-    </com.github.clans.fab.FloatingActionMenu>-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
@@ -33,11 +34,12 @@ import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 public class EventosActivity extends AppCompatActivity {
-    private static final String TAG = "teventos";
+    private static final String TAG = "meulog";
     private MaterialCalendarView calendarView;
     private RecyclerView recyclerEventos;
     private AdapterEventos adapterEventos;
@@ -47,6 +49,9 @@ public class EventosActivity extends AppCompatActivity {
 
     private List<Evento> listaEventos = new ArrayList<>();
     private List<Evento> listaEventosMes = new ArrayList<>();
+
+    /*timezone*/
+    public static final TimeZone TIMEZONE = TimeZone.getTimeZone("America/Sao_Paulo");
 
     /*Collection de Decorators*/
     private Collection<CalendarDay> datasDecoratorMes = new ArrayList<>();
@@ -60,6 +65,9 @@ public class EventosActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
         toolbar.setTitle("Eventos");
         setSupportActionBar(toolbar);
+        //Configura o item voltar na toolbar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //Inicializa os componentes
         calendarView = findViewById(R.id.calendarView);
@@ -97,18 +105,24 @@ public class EventosActivity extends AppCompatActivity {
 
                     }
                 }));
-
+        recuperarEventos();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        recuperarEventos();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop: ");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
         eventosRef.removeEventListener(valueEventListenerEventos);
     }
 
@@ -134,32 +148,39 @@ public class EventosActivity extends AppCompatActivity {
         calendarView.setOnMonthChangedListener(new OnMonthChangedListener() {
             @Override
             public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
-                Log.d(TAG, "onMonthChanged: ");
                 calendarView.clearSelection();//Limpa a data selecionada, se tiver, quando mudar o mês
                 listaEventosMes.clear();//limpa a lista para não duplicarrr
                 datasDecoratorMes.clear(); //limpa a lista de decoradores para não duplicar e ocupar memória
 
-                TimeZone timeZone = TimeZone.getTimeZone("UTC");
-
                 for (Evento evento : listaEventos){
-                    Calendar cInicial = Calendar.getInstance(timeZone);
+                    Calendar cInicial = Calendar.getInstance(TIMEZONE);
                     cInicial.setTimeInMillis(evento.getData_inicio());
 
-                    Calendar cFinal = Calendar.getInstance(timeZone);
+                    Calendar cFinal = Calendar.getInstance(TIMEZONE);
                     cFinal.setTimeInMillis(evento.getData_fim());
 
                     if((cInicial.get(Calendar.MONTH) == date.getMonth()) || (cFinal.get(Calendar.MONTH) == date.getMonth())) {
                         listaEventosMes.add(evento);
 
+                        Date dateInicial = new Date(evento.getData_inicio());
+                        Date dateFinal = new Date(evento.getData_fim());
+
+                        List<Date> datas = MapaActivity.getDaysBetweenDates(dateInicial, dateFinal);
+                        for (Date data : datas){
+                            //adiciona o evento do dia na lista
+                            if (data.getTime() >= dateInicial.getTime() && data.getTime() <= dateFinal.getTime()) {
+                                datasDecoratorMes.add(CalendarDay.from(data.getTime()));
+                            }
+                        }
                         /*Adiciona o evento ao Collection de decoradores*/
-                        datasDecoratorMes.add(CalendarDay.from(cInicial));
-                        datasDecoratorMes.add(CalendarDay.from(cFinal));
+                        /*datasDecoratorMes.add(CalendarDay.from(cInicial));
+                        datasDecoratorMes.add(CalendarDay.from(cFinal));*/
                     }
 
                 }
 
                 /*Adiciona Decoradores no calendário*/
-                calendarView.removeDecorators();
+                //calendarView.removeDecorators();
                 calendarView.invalidateDecorators();
                 calendarView.addDecorators(new EventoDecorator(Color.BLUE, datasDecoratorMes));/*Adiciona pontos nos eventos do mês*/
 
@@ -177,13 +198,13 @@ public class EventosActivity extends AppCompatActivity {
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 listaEventosMes.clear();
                 for (Evento evento : listaEventos){
-                    Calendar cInicial = Calendar.getInstance();
+                    Calendar cInicial = Calendar.getInstance(TIMEZONE);
                     cInicial.setTimeInMillis(evento.getData_inicio());
 
-                    Calendar cFinal = Calendar.getInstance();
+                    Calendar cFinal = Calendar.getInstance(TIMEZONE);
                     cFinal.setTimeInMillis(evento.getData_fim());
 
-                    Calendar cSelecionado = Calendar.getInstance();
+                    Calendar cSelecionado = Calendar.getInstance(TIMEZONE);
                     cSelecionado.set(date.getYear(),date.getMonth(),date.getDay(), 0,0,0);
 
                     if ((cSelecionado.getTimeInMillis() >= cInicial.getTimeInMillis() && cSelecionado.getTimeInMillis() <= cFinal.getTimeInMillis()) //Verificação de eventos em varios dias
@@ -203,8 +224,6 @@ public class EventosActivity extends AppCompatActivity {
         });
     }
 
-
-
     public void recuperarEventos () {
         Log.d(TAG, "recuperarEventos: ");
         eventosRef = ConfiguracaoFirebase.getFirebaseDatabase().child("eventos");
@@ -223,22 +242,14 @@ public class EventosActivity extends AppCompatActivity {
                     listaEventos.add(evento);
                 }
 
-                TimeZone timeZone = TimeZone.getTimeZone("UTC");
-                /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-                simpleDateFormat.setTimeZone(timeZone);*/
-
-                Calendar cAtual = Calendar.getInstance(timeZone);
+                Calendar cAtual = Calendar.getInstance(TIMEZONE);
                 cAtual.setTimeInMillis(System.currentTimeMillis());
-                /*Log.d(TAG, "--- ATUAL ---");
-                Log.d(TAG, "millis: "+ cAtual.getTimeInMillis());
-                Log.d(TAG, "getTime Default: "+ cAtual.getTime());
-                Log.d(TAG, "getTime sdt: "+ simpleDateFormat.format(cAtual.getTime()));*/
 
                 for (Evento evento : listaEventos){
-                    Calendar cInicial = Calendar.getInstance(timeZone);
+                    Calendar cInicial = Calendar.getInstance(TIMEZONE);
                     cInicial.setTimeInMillis(evento.getData_inicio());
 
-                    Calendar cFinal = Calendar.getInstance(timeZone);
+                    Calendar cFinal = Calendar.getInstance(TIMEZONE);
                     cFinal.setTimeInMillis(evento.getData_fim());
 
                     /* Se o mês inicio do evento ou o mês final do evento for igual ao mês atual, adiciona o evento na lista*/
@@ -248,9 +259,19 @@ public class EventosActivity extends AppCompatActivity {
                         /*Adiciona o evento na lista de eventos do Mês*/
                         listaEventosMes.add(evento);
 
+                        Date dateInicial = new Date(evento.getData_inicio());
+                        Date dateFinal = new Date(evento.getData_fim());
+
+                        List<Date> datas = MapaActivity.getDaysBetweenDates(dateInicial, dateFinal);
+                        for (Date data : datas){
+                            //adiciona o evento do dia na lista
+                            if (data.getTime() >= dateInicial.getTime() && data.getTime() <= dateFinal.getTime()) {
+                                datasDecoratorMes.add(CalendarDay.from(data.getTime()));
+                            }
+                        }
                         /*Adiciona o evento ao Collection de decoradores*/
-                        datasDecoratorMes.add(CalendarDay.from(cInicial));
-                        datasDecoratorMes.add(CalendarDay.from(cFinal));
+                        /*datasDecoratorMes.add(CalendarDay.from(cInicial));
+                        datasDecoratorMes.add(CalendarDay.from(cFinal));*/
                     }
                 }
 
@@ -271,5 +292,17 @@ public class EventosActivity extends AppCompatActivity {
                 Log.d(TAG, databaseError.getMessage());
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
