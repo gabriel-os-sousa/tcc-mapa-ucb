@@ -1,16 +1,11 @@
 package com.gabrieldev.mapaucb.model;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
-import com.gabrieldev.mapaucb.config.ConfiguracaoFirebase;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.List;
 
 public class Local implements Serializable {
     private String id;
@@ -22,7 +17,6 @@ public class Local implements Serializable {
     private int zIndex;
     private Long dataCadastro;
     private Integer andar;
-    private List<Local> localVizinho;
 
     public Local() {
     }
@@ -31,32 +25,6 @@ public class Local implements Serializable {
     @Override
     public String toString() {
         return " Nome: "+this.getNome()+" - Desc: "+this.getDescricao();
-    }
-
-    public void salvar() {
-        this.dataCadastro = Calendar.getInstance().getTimeInMillis();
-        DatabaseReference firebase = ConfiguracaoFirebase.getFirebaseDatabase().child("locais");
-        //.child(this.id) //salva o id único codificado em Base64
-        this.setId(firebase.push().getKey());
-        firebase.child(this.id).setValue(this);
-
-        Log.d("salvarL", ""+ this.id);
-        Log.d("salvarL", ""+ this.nome);
-        Log.d("salvarL", ""+ this.descricao);
-        Log.d("salvarL", ""+ this.latitude);
-        Log.d("salvarL", ""+ this.longitude);
-        Log.d("salvarL", ""+ this.tipo);
-        Log.d("salvarL", ""+ this.zIndex);
-        Log.d("salvarL", "Data"+ this.dataCadastro);
-    }
-
-    @Exclude
-    public List<Local> getLocalVizinho() {
-        return localVizinho;
-    }
-
-    public void setLocalVizinho(List<Local> localVizinho) {
-        this.localVizinho = localVizinho;
     }
 
     public String getId() {

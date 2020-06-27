@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -36,9 +35,6 @@ import androidx.core.content.ContextCompat;
 import com.gabrieldev.mapaucb.R;
 import com.gabrieldev.mapaucb.adapter.AdapterInfoWindow;
 import com.gabrieldev.mapaucb.config.ConfiguracaoFirebase;
-import com.gabrieldev.mapaucb.dijkstra.Dijkstra;
-import com.gabrieldev.mapaucb.dijkstra.Graph;
-import com.gabrieldev.mapaucb.dijkstra.Node;
 import com.gabrieldev.mapaucb.helper.Permissoes;
 import com.gabrieldev.mapaucb.model.Evento;
 import com.gabrieldev.mapaucb.model.Local;
@@ -57,8 +53,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -221,9 +215,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Remove atualizações de GPS quando a activity estiver em segundo plano
         removeUpdatesLocation();
-
-        /*locaisRef.removeEventListener(valueEventListenerLocais);
-        eventosRef.removeEventListener(valueEventListenerEventos);*/
     }
 
     @Override
@@ -263,301 +254,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Configura o botão de localização somente quando o mapa estiver pronto
         configuraFabLocalizacao();
-        //rotas();
-        //pontosRotas();
-    }
-
-    /************************************ TesteCalcularRota ***************************************/
-    public void testeCalcularDistancia(View view) {
-
-        /*//Adicionando os nós (No meu caso vai ser os marcadores)
-        Node nodeA = new Node("A");
-        Node nodeB = new Node("B");
-        Node nodeC = new Node("C");
-        Node nodeD = new Node("D");
-        Node nodeE = new Node("E");
-        Node nodeF = new Node("F");
-
-
-        //Adicioando os destinos possíveis a partir do nó (No meu caso vai ser o outro marcador e a distancia entre eles)
-        nodeA.addDestination(nodeB, 10);
-        nodeA.addDestination(nodeC, 15);
-
-        nodeB.addDestination(nodeD, 12);
-        nodeB.addDestination(nodeF, 15);
-
-        nodeC.addDestination(nodeE, 10);
-
-        nodeD.addDestination(nodeE, 2);
-        nodeD.addDestination(nodeF, 1);
-
-        nodeF.addDestination(nodeE, 5);
-
-
-
-        Graph graph = new Graph();
-
-        graph.addNode(nodeA);
-        graph.addNode(nodeB);
-        graph.addNode(nodeC);
-        graph.addNode(nodeD);
-        graph.addNode(nodeE);
-        graph.addNode(nodeF);
-
-        graph = Dijkstra.calculateShortestPathFromSource(graph, nodeA);
-
-        List<Node> shortestPathForNodeB = Arrays.asList(nodeA);
-        List<Node> shortestPathForNodeC = Arrays.asList(nodeA);
-        List<Node> shortestPathForNodeD = Arrays.asList(nodeA, nodeB);
-        List<Node> shortestPathForNodeE = Arrays.asList(nodeA, nodeB, nodeD);
-        List<Node> shortestPathForNodeF = Arrays.asList(nodeA, nodeB, nodeD);
-
-        for (Node node : graph.getNodes()) {
-            switch (node.getName()) {
-                case "B":
-                    Log.d("TesteD", "B :"+ node.getShortestPath().equals(shortestPathForNodeB));
-                    for (Node nodet :shortestPathForNodeB) {
-                        Log.d("TesteD", "B -->: "+ nodet.getName());
-                    }
-                    break;
-                case "C":
-                    Log.d("TesteD", "C :"+ node.getShortestPath().equals(shortestPathForNodeC));
-                    for (Node nodet :shortestPathForNodeC) {
-                        Log.d("TesteD", "C -->: "+ nodet.getName());
-                    }
-                    break;
-                case "D":
-                    Log.d("TesteD", "D :"+ node.getShortestPath().equals(shortestPathForNodeD));
-                    for (Node nodet :shortestPathForNodeD) {
-                        Log.d("TesteD", "D -->: "+ nodet.getName());
-                    }
-                    break;
-                case "E":
-                    Log.d("TesteD", "E :"+ node.getShortestPath().equals(shortestPathForNodeE));
-                    for (Node nodet :shortestPathForNodeE) {
-                        Log.d("TesteD", "E -->: "+ nodet.getName());
-                    }
-                    break;
-                case "F":
-                    Log.d("TesteD", "F :"+ node.getShortestPath().equals(shortestPathForNodeF));
-                    for (Node nodet :shortestPathForNodeF) {
-                        Log.d("TesteD", "F -->: "+ nodet.getName());
-                    }
-                    break;
-            }
-        }*/
-    }
-
-    public void testeCalcularRota(View view) {
-
-        //Adicionando os nós (No meu caso vai ser os marcadores)
-        /*Node nodeA = new Node("A");
-        Node nodeB = new Node("B");
-        Node nodeC = new Node("C");
-        Node nodeD = new Node("D");
-        Node nodeE = new Node("E");
-        Node nodeF = new Node("F");*/
-
-        /*
-         *  -15.866191, -48.031270 , divisa biblioteca e estacionamento dos professores
-         *  -15.865556, -48.031541 , frente da biblioteca
-         *  -15.865200, -48.031146 , norte da biblioteca
-         *  -15.865500, -48.030127 , biblioteca com bloco m
-         *  -15.865644, -48.030197 , frente do bloco M
-         *  -15.864643, -48.029840 , frente do bloco K
-         * */
-
-
-        Node nodeMinhaLoc = new Node("Minha Loc", new LatLng(-15.864794, -48.030199));
-        Node nodeA = new Node("frente do bloco K", new LatLng(-15.864643, -48.029840));
-        Node nodeB = new Node("biblioteca com bloco m", new LatLng(-15.865500, -48.030127));
-        Node nodeC = new Node("Norte da Biblioteca", new LatLng(-15.865200, -48.031146));
-        Node nodeD = new Node("Frente do Bloco M", new LatLng(-15.865644, -48.030197));
-        Node nodeF = new Node("frente biblioteca", new LatLng(-15.865556, -48.031541));
-        Node nodeG = new Node("Divisa biblioteca, estacionamento professores", new LatLng(-15.866191, -48.031270));
-
-
-        float[] distancia = new float[1];
-
-
-        // frente do bloco K
-        Location.distanceBetween(-15.864643, -48.029840, -15.865500, -48.030127, distancia);
-        nodeA.addDestination(nodeB, distancia[0]);
-
-        //biblioteca com bloco M
-        Location.distanceBetween(-15.865500, -48.030127, -15.865200, -48.031146, distancia);
-        nodeB.addDestination(nodeC, distancia[0]);
-
-        Location.distanceBetween(-15.865500, -48.030127, -15.865644, -48.030197, distancia);
-        nodeB.addDestination(nodeD, distancia[0]);
-
-        Location.distanceBetween(-15.865500, -48.030127, -15.864643, -48.029840, distancia);
-        nodeB.addDestination(nodeA, distancia[0]);
-
-
-        // Norte da Biblioteca
-        Location.distanceBetween(-15.865200, -48.031146, -15.865556, -48.031541, distancia);
-        nodeC.addDestination(nodeF, distancia[0]);
-
-        Location.distanceBetween(-15.865200, -48.031146, -15.865500, -48.030127, distancia);
-        nodeC.addDestination(nodeB, distancia[0]);
-
-        // Frente do Bloco M
-        Location.distanceBetween(-15.865644, -48.030197, -15.866191, -48.031270, distancia);
-        nodeD.addDestination(nodeG, distancia[0]);
-
-        Location.distanceBetween(-15.865644, -48.030197, -15.865500, -48.030127, distancia);
-        nodeD.addDestination(nodeB, distancia[0]);
-
-
-        //frente biblioteca
-        Location.distanceBetween(-15.865556, -48.031541, -15.865200, -48.031146, distancia);
-        nodeF.addDestination(nodeC, distancia[0]);
-
-        Location.distanceBetween(-15.865556, -48.031541, -15.866191, -48.031270, distancia);
-        nodeF.addDestination(nodeG, distancia[0]);
-
-        //Divisa biblioteca, estacionamento professores
-        Location.distanceBetween(-15.866191, -48.031270, -15.865556, -48.031541, distancia);
-        nodeG.addDestination(nodeF, distancia[0]);
-
-        Location.distanceBetween(-15.866191, -48.031270, -15.865644, -48.030197, distancia);
-        nodeG.addDestination(nodeD, distancia[0]);
-
-        Graph graph = new Graph();
-        graph.addNode(nodeA);
-        graph.addNode(nodeB);
-        graph.addNode(nodeC);
-        graph.addNode(nodeD);
-        graph.addNode(nodeF);
-        graph.addNode(nodeG);
-
-
-        graph = Dijkstra.calculateShortestPathFromSource(graph, nodeA);
-
-
-        for (Node node : graph.getNodes()) {
-            Log.d("TesteD", "-----> " + node.getName());
-            if (node.getName().equals("Divisa biblioteca, estacionamento professores")) {
-
-                List<LatLng> coordList = new ArrayList<>();
-
-                for (Node nodeLatLng : node.getShortestPath()) {
-                    coordList.add(nodeLatLng.getLatLng());
-                    Log.d("TesteD", "LatLng" + nodeLatLng.getLatLng());
-                }
-
-                coordList.add(node.getLatLng()); //adiciona o ultimo
-
-                PolylineOptions polylineOptions = new PolylineOptions();
-
-                // Cria uma polyline options com todos os LatLng em coordlist
-                polylineOptions.addAll(coordList);
-                polylineOptions.width(10).color(Color.RED);
-
-                // Adding multiple points in map using polyline and arraylist
-                mapa.addPolyline(polylineOptions);
-            }
-
-            for (Node node2 : node.getShortestPath()) {
-                Log.d("TesteD", "-> " + node2.getName());
-            }
-        }
-
-
-    }
-
-    private void pontosRotas() {
-        ArrayList<LatLng> markers = new ArrayList<>();
-
-        /*markers.add(new LatLng(-15.864650, -48.029828));
-        markers.add(new LatLng(-15.865501, -48.030114));
-        markers.add(new LatLng(-15.865709, -48.030177));
-        markers.add(new LatLng(-15.865474, -48.030324));
-        markers.add(new LatLng(-15.865823, -48.030408));
-        markers.add(new LatLng(-15.865503, -48.031526));
-        markers.add(new LatLng(-15.866228, -48.031236));
-        markers.add(new LatLng(-15.866345, -48.030405));
-        markers.add(new LatLng(-15.866688, -48.031079));
-        markers.add(new LatLng(-15.865743, -48.030076));*/
-
-       /* Marker m1 = mapa.addMarker(new MarkerOptions().position(new LatLng(-15.867621, -48.030888))
-                .title("m1: "+-15.867621+", "+-48.030888));
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(new LatLng(-15.867621, -48.030888))
-                .title("m1: "+-15.867621+", "+-48.030888);
-
-        Marker m2;
-        Marker m3;
-        Marker m4;
-        Marker m5;
-
-
-
-            marcador = mapa.addMarker(markerOptions);*/
-
-        float[] results = new float[1];
-        Location.distanceBetween(-15.865743, -48.030076, -15.864650, -48.029828, results);
-
-        Log.d(TAG, "distancia: " + results[0]);
-
-    }
-
-    private void rotas() {
-        Polyline p1 = mapa.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .add(
-                        new LatLng(-15.864692, -48.029663),
-                        new LatLng(-15.864650, -48.029830),
-                        new LatLng(-15.865500, -48.030111) //fim intersecção
-                ));
-        p1.setTag("A");
-
-        Polyline p2 = mapa.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .add(
-                        new LatLng(-15.865500, -48.030111),
-                        new LatLng(-15.865715, -48.030190)
-                ));
-        p2.setTag("B");
-
-        Polyline p3 = mapa.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .add(
-                        new LatLng(-15.865715, -48.030190),
-                        new LatLng(-15.865844, -48.030470),
-                        new LatLng(-15.866248, -48.031250)
-                ));
-        p3.setTag("C");
-
-        stylePolyline(p1);
-        stylePolyline(p2);
-        stylePolyline(p3);
-
-    }
-
-    private void stylePolyline(Polyline polyline) {
-        String type = "";
-        // Get the data object stored with the polyline.
-        if (polyline.getTag() != null) {
-            type = polyline.getTag().toString();
-        }
-
-        switch (type) {
-
-            case "A":
-                polyline.setColor(0xffF9A825);
-                break;
-            case "B":
-                polyline.setColor(0xff81C784);
-                break;
-            case "C":
-                polyline.setColor(0xffF57F17);
-                break;
-            case "D":
-                polyline.setColor(0xff388E3C);
-                break;
-        }
     }
 
     private void styleMap() {
@@ -1262,7 +958,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
         matrixR = new float[9];
         matrixI = new float[9];
         matrixValues = new float[3];
-
     }
 
     @Override
@@ -1342,12 +1037,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.menuTutorial:
-                startActivity(new Intent(MapaActivity.this, TutorialActivity.class));//Recarrefa a activity
-                break;
-        }
 
         return super.onOptionsItemSelected(item);
     }

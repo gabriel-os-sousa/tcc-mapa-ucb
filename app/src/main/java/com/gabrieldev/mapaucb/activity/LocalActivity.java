@@ -138,6 +138,8 @@ public class LocalActivity extends AppCompatActivity implements OnMapReadyCallba
         mapa = googleMap;
         mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(local.getLatitude(), local.getLongitude()), 16));
 
+        mapa.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+
         styleMap();
         configuraUi();
         adicionarMarcador();

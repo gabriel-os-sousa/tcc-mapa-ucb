@@ -19,11 +19,11 @@
         android:title="Login"
         app:showAsAction="never"
         />-->
-    <item
+    <!--<item
         android:id="@+id/menuTutorial"
         android:title="Tutorial"
         app:showAsAction="never"
-        />
+        />-->
 
     <!--<item
         android:id="@+id/menuSair"

@@ -163,6 +163,7 @@ public class MapaLocalActivity extends AppCompatActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         mapa = googleMap;
 
+        mapa.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         styleMap();
         configuraUi();
 

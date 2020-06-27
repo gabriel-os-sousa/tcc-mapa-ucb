@@ -216,9 +216,9 @@ public class ListaLocalActivity extends AppCompatActivity {
         for (Local local : listaLocais ) {
             //Campos parâmetros para a busca
             String nome = local.getNome().toLowerCase();
-            String descricao = local.getDescricao().toLowerCase();
+            //String descricao = local.getDescricao().toLowerCase();
 
-            if (nome.contains(texto.toLowerCase()) || descricao.contains(texto.toLowerCase())){
+            if (nome.contains(texto.toLowerCase())){
                 listaLocalBusca.add(local);
             }
         }
@@ -243,6 +243,7 @@ public class ListaLocalActivity extends AppCompatActivity {
 
                     //Log.d("searchV", "Listner "+ local.getNome());
                 }
+
                 Log.d("searchV", "dataChange");
                 searchView.closeSearch();//fecha o searchview
             }

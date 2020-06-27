@@ -46,11 +46,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.TutorialActivity"
-            android:theme="@style/Theme.Intro"
-            android:screenOrientation="portrait"
-            />
+
         <activity android:name=".activity.LocalActivity"
             android:screenOrientation="portrait"/>
         <activity
