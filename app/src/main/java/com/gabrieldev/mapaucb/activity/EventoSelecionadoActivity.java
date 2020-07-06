@@ -98,7 +98,6 @@ public class EventoSelecionadoActivity extends AppCompatActivity {
                 textData.setText(datafim);
             }
 
-            /*TODO: Recuperar url do campo no firebase*/
             String nomeImg = evento.getId() + ".png";
             storageRef.child("eventos").child(nomeImg)
                     .getDownloadUrl()

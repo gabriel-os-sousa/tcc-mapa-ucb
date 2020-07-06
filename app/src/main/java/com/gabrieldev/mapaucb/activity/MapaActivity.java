@@ -893,7 +893,6 @@ public class MapaActivity extends AppCompatActivity implements OnMapReadyCallbac
                 markerLocalizacaoUsuario.setRotation(location.getBearing());
 
 
-                /*TODO: Fazer verificação se a localização está dentro do limite da ucb*/
                 if (locUsuario == null) {
                     getZoomAtual();
                     mapa.animateCamera(CameraUpdateFactory.newLatLngZoom(meuLocal, getZoomAtual()), 500, null);
