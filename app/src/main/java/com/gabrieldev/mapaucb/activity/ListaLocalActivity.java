@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ListaLocalActivity extends AppCompatActivity {
@@ -223,6 +224,8 @@ public class ListaLocalActivity extends AppCompatActivity {
             }
         }
 
+        Collections.sort(listaLocalBusca);
+
         Log.d("searchV: ", "changeQR "+ listaLocalBusca);
 
         //Recriar o recyclerview com os dados
@@ -244,6 +247,7 @@ public class ListaLocalActivity extends AppCompatActivity {
                     //Log.d("searchV", "Listner "+ local.getNome());
                 }
 
+                Collections.sort(listaLocais);
                 Log.d("searchV", "dataChange");
                 searchView.closeSearch();//fecha o searchview
             }

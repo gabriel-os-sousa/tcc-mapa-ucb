@@ -7,7 +7,7 @@ import com.google.firebase.database.Exclude;
 import java.io.Serializable;
 import java.util.Calendar;
 
-public class Local implements Serializable {
+public class Local implements Serializable, Comparable<Local> {
     private String id;
     private String nome;
     private String tipo;
@@ -107,5 +107,10 @@ public class Local implements Serializable {
 
     public void setDataCadastro(Long dataCadastro) {
         this.dataCadastro = dataCadastro;
+    }
+
+    @Override
+    public int compareTo(Local o) {
+        return this.getNome().compareTo(o.getNome());
     }
 }

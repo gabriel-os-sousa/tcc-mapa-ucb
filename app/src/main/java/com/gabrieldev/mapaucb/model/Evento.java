@@ -2,7 +2,7 @@ package com.gabrieldev.mapaucb.model;
 
 import java.io.Serializable;
 
-public class Evento implements Serializable {
+public class Evento implements Serializable, Comparable<Evento> {
     private String id;
     private Long data_fim;
     private Long data_inicio;
@@ -86,5 +86,10 @@ public class Evento implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public int compareTo(Evento o) {
+        return this.getData_inicio().compareTo(o.getData_inicio());
     }
 }

@@ -34,6 +34,7 @@ import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -184,6 +185,8 @@ public class EventosActivity extends AppCompatActivity {
                 calendarView.invalidateDecorators();
                 calendarView.addDecorators(new EventoDecorator(Color.BLUE, datasDecoratorMes));/*Adiciona pontos nos eventos do mês*/
 
+
+                Collections.sort(listaEventosMes);
                 /*Configura o adapter novamente com os novos dados*/
                 adapterEventos = new AdapterEventos(listaEventosMes);
                 recyclerEventos.setAdapter(adapterEventos);
@@ -216,6 +219,8 @@ public class EventosActivity extends AppCompatActivity {
                     }
                 }
 
+
+                Collections.sort(listaEventosMes);
                 /*Configura o adapter novamente com os novos dados*/
                 adapterEventos = new AdapterEventos(listaEventosMes);
                 recyclerEventos.setAdapter(adapterEventos);
@@ -280,6 +285,9 @@ public class EventosActivity extends AppCompatActivity {
                 calendarView.removeDecorators();
                 calendarView.invalidateDecorators();
                 calendarView.addDecorators(new EventoDecorator(Color.BLUE, datasDecoratorMes));/*Adiciona decoradores no dia atual*/
+
+                /*Sort List*/
+                Collections.sort(listaEventosMes);
 
                 /*Configura o adapter novamente com os novos dados*/
                 adapterEventos = new AdapterEventos(listaEventosMes);
